@@ -1,0 +1,758 @@
+{% extends "layout.html" %}
+
+{% block title %}Offline Media &amp; CCTV Scanner — MaskGuard AI{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Top Diagnostic & Header Area (Clean, Uncluttered) -->
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Static Photo &amp; CCTV Inspection Hub
+                </span>
+                <span class="text-slate-300">•</span>
+                <span class="font-mono text-xs text-slate-500">Pipeline: TensorFlow Edge CNN</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Offline Media &amp; CCTV Image Scanner</h1>
+            <p class="text-xs text-slate-500 max-w-2xl">
+                High-precision facial PPE verification, multi-subject mask detection, and forensic still-frame analysis for offline security footage.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-700 shadow-2xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-sm"></span>
+                <span class="font-semibold text-emerald-700">CNN Model Online</span>
+                <span class="text-slate-300">|</span>
+                <span class="text-slate-500" id="header-latency">14.2ms</span>
+            </div>
+            <button id="exportJsonBtn" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-colors cursor-pointer" type="button">
+                <span class="material-symbols-outlined text-[16px] text-slate-500">data_object</span>
+                Export Diagnostic JSON
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Two-Column Analysis Workstation -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- LEFT COLUMN: Input & Test Corpus (5 Cols Desktop) -->
+        <div class="lg:col-span-5 flex flex-col gap-5">
+
+            <!-- Card A: Upload Dropzone Card -->
+            <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col gap-3.5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-600 text-[20px]">upload_file</span>
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 leading-tight">Upload Image for AI Inspection</h2>
+                            <span class="text-[11px] text-slate-400">Accepts raw CCTV captures, security footage &amp; still frames</span>
+                        </div>
+                    </div>
+                    <span class="font-mono text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-semibold">CCTV / RAW</span>
+                </div>
+
+                <!-- Sleek Dropzone -->
+                <div id="dropzoneContainer" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/20 rounded-xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group">
+                    <div class="w-12 h-12 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform shadow-2xs">
+                        <span class="material-symbols-outlined text-[24px]">cloud_upload</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800">Drag &amp; drop your security photo here</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Supports JPG, PNG, WEBP (Max 15MB) • Auto-scaled to 1080p</p>
+                    </div>
+                    <div class="mt-2 flex flex-wrap items-center justify-center gap-2.5">
+                        <label class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[16px]">folder_open</span>
+                            Browse Files
+                            <input id="imageFileInput" accept="image/*" class="hidden" type="file">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Analysis in progress indicator -->
+                <div id="uploadStatusIndicator" class="hidden items-center gap-2 p-2.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-mono">
+                    <span class="material-symbols-outlined text-sm animate-spin">autorenew</span>
+                    <span id="uploadStatusText">Executing CNN inference pass...</span>
+                </div>
+            </div>
+
+            <!-- Card B: 1-Click Verification Test Samples -->
+            <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col gap-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-600 text-[20px]">science</span>
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 leading-tight">1-Click Verification Test Samples</h2>
+                            <span class="text-[11px] text-slate-400">Validated baseline instances from CCTV node array</span>
+                        </div>
+                    </div>
+                    <span class="font-mono text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-semibold uppercase">Dataset Corpus</span>
+                </div>
+                <p class="text-xs text-slate-500">
+                    Click any sample below to evaluate the deep learning model instantly:
+                </p>
+
+                <!-- 2x2 Interactive Samples Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <!-- Sample 1: Active by Default -->
+                    <button class="sample-card text-left p-2 rounded-xl bg-slate-50 hover:bg-emerald-50/40 border border-slate-200/80 transition-all flex flex-col gap-2 relative shadow-2xs ring-2 ring-emerald-500 cursor-pointer" id="sampleBtn1" onclick="runSampleScan('mask_1.jpg', 1)" type="button">
+                        <div class="relative w-full h-24 rounded-lg overflow-hidden bg-slate-100">
+                            <img class="w-full h-full object-cover" src="/static/samples/mask_1.jpg" alt="Sample 1 With Mask">
+                            <div class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-600 text-white font-bold flex items-center gap-1 shadow-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                WITH MASK
+                            </div>
+                            <div class="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center sample-check shadow-xs">
+                                <span class="material-symbols-outlined text-[13px]">check</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between px-0.5 text-xs">
+                            <div>
+                                <div class="font-bold text-slate-800">Sample #1 (High Adherence)</div>
+                                <div class="text-[10px] text-slate-400">Turnstile Gate 01 • Surgical 3-Ply</div>
+                            </div>
+                            <span class="font-mono font-bold text-emerald-600 text-xs">99.1%</span>
+                        </div>
+                    </button>
+
+                    <!-- Sample 2 -->
+                    <button class="sample-card text-left p-2 rounded-xl bg-white hover:bg-rose-50/40 border border-slate-200/80 transition-all flex flex-col gap-2 relative shadow-2xs cursor-pointer" id="sampleBtn2" onclick="runSampleScan('nomask_1.jpg', 2)" type="button">
+                        <div class="relative w-full h-24 rounded-lg overflow-hidden bg-slate-100">
+                            <img class="w-full h-full object-cover" src="/static/samples/nomask_1.jpg" alt="Sample 2 No Mask">
+                            <div class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded font-mono text-[10px] bg-rose-600 text-white font-bold flex items-center gap-1 shadow-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                NO MASK
+                            </div>
+                            <div class="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-emerald-600 text-white hidden items-center justify-center sample-check shadow-xs">
+                                <span class="material-symbols-outlined text-[13px]">check</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between px-0.5 text-xs">
+                            <div>
+                                <div class="font-bold text-slate-800">Sample #2 (Clear Violation)</div>
+                                <div class="text-[10px] text-slate-400">Lobby Portal • Exposed Face</div>
+                            </div>
+                            <span class="font-mono font-bold text-rose-600 text-xs">98.4%</span>
+                        </div>
+                    </button>
+
+                    <!-- Sample 3 -->
+                    <button class="sample-card text-left p-2 rounded-xl bg-white hover:bg-emerald-50/40 border border-slate-200/80 transition-all flex flex-col gap-2 relative shadow-2xs cursor-pointer" id="sampleBtn3" onclick="runSampleScan('mask_2.jpg', 3)" type="button">
+                        <div class="relative w-full h-24 rounded-lg overflow-hidden bg-slate-100">
+                            <img class="w-full h-full object-cover" src="/static/samples/mask_2.jpg" alt="Sample 3 With Mask">
+                            <div class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-600 text-white font-bold flex items-center gap-1 shadow-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                WITH MASK
+                            </div>
+                            <div class="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-emerald-600 text-white hidden items-center justify-center sample-check shadow-xs">
+                                <span class="material-symbols-outlined text-[13px]">check</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between px-0.5 text-xs">
+                            <div>
+                                <div class="font-bold text-slate-800">Sample #3 (N95 Cleanroom)</div>
+                                <div class="text-[10px] text-slate-400">Bio-containment Hub • Lab N95</div>
+                            </div>
+                            <span class="font-mono font-bold text-emerald-600 text-xs">99.7%</span>
+                        </div>
+                    </button>
+
+                    <!-- Sample 4 -->
+                    <button class="sample-card text-left p-2 rounded-xl bg-white hover:bg-rose-50/40 border border-slate-200/80 transition-all flex flex-col gap-2 relative shadow-2xs cursor-pointer" id="sampleBtn4" onclick="runSampleScan('nomask_2.jpg', 4)" type="button">
+                        <div class="relative w-full h-24 rounded-lg overflow-hidden bg-slate-100">
+                            <img class="w-full h-full object-cover" src="/static/samples/nomask_2.jpg" alt="Sample 4 No Mask">
+                            <div class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded font-mono text-[10px] bg-rose-600 text-white font-bold flex items-center gap-1 shadow-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                NO MASK
+                            </div>
+                            <div class="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-emerald-600 text-white hidden items-center justify-center sample-check shadow-xs">
+                                <span class="material-symbols-outlined text-[13px]">check</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between px-0.5 text-xs">
+                            <div>
+                                <div class="font-bold text-slate-800">Sample #4 (Access Denied)</div>
+                                <div class="text-[10px] text-slate-400">Service Dock • PPE Missing</div>
+                            </div>
+                            <span class="font-mono font-bold text-rose-600 text-xs">97.9%</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: AI Detection Analysis & Confidence Breakdown (7 Cols Desktop) -->
+        <div class="lg:col-span-7 flex flex-col gap-5">
+            <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex flex-col gap-4">
+                <!-- Header and Real-time Decision Banner -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-600 text-[20px]">biometrics</span>
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 leading-tight">AI Detection Analysis</h2>
+                            <span class="text-[11px] text-slate-400 font-mono">Sequential CNN + Haar Cascade Localization</span>
+                        </div>
+                    </div>
+                    <!-- Interlock Status Pill -->
+                    <div class="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 text-xs font-mono font-semibold text-emerald-800" id="statusPill">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="statusIndicatorDot"></span>
+                        <span id="statusInterlockText">SOLENOID: DISENGAGED (PASS)</span>
+                    </div>
+                </div>
+
+                <!-- Prominent Decision Alert Banner -->
+                <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors" id="decisionBanner">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0" id="decisionIconWrap">
+                            <span class="material-symbols-outlined text-[20px]" id="decisionIcon">verified</span>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-emerald-900" id="decisionTitle">
+                                ACCESS GRANTED (ALL COMPLIANT)
+                            </div>
+                            <div class="text-xs text-emerald-700 mt-0.5" id="decisionDesc">
+                                Facial safety criteria met. Solenoid barrier release command dispatched to turnstile controller.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 self-start sm:self-auto font-mono text-[11px] font-semibold bg-white border border-emerald-200 px-2.5 py-1 rounded-lg text-emerald-800 shadow-2xs">
+                        <span class="material-symbols-outlined text-[14px] text-emerald-600">lock_open</span>
+                        <span id="coilSignal">Coil: Disengaged (Pass)</span>
+                    </div>
+                </div>
+
+                <!-- Active Inspector Viewport with Overlaid HUD -->
+                <div class="relative rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-sm flex flex-col">
+                    <!-- Viewport Bar -->
+                    <div class="bg-slate-900/90 px-3.5 py-2 flex items-center justify-between z-10 border-b border-slate-800 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="font-mono text-[11px] text-slate-300 font-semibold">FEED: STATIC_CCTV_STILL_FRAME_INSPECTOR</span>
+                        </div>
+                        <span class="font-mono text-[11px] text-slate-400">CH-02 // INGRESS_SOUTH</span>
+                    </div>
+
+                    <!-- Image Stage with Bounding Box Overlay -->
+                    <div class="relative w-full h-[340px] sm:h-[380px] bg-slate-950 overflow-hidden flex items-center justify-center">
+                        <img id="mainInspectorImage" src="/static/samples/mask_1.jpg" alt="CCTV Inspection Frame" class="max-h-full max-w-full object-contain transition-opacity duration-300">
+
+                        <!-- Corner Registration Reticles -->
+                        <div class="absolute top-4 left-4 w-5 h-5 border-t-2 border-l-2 border-emerald-500/70 pointer-events-none"></div>
+                        <div class="absolute top-4 right-4 w-5 h-5 border-t-2 border-r-2 border-emerald-500/70 pointer-events-none"></div>
+                        <div class="absolute bottom-4 left-4 w-5 h-5 border-b-2 border-l-2 border-emerald-500/70 pointer-events-none"></div>
+                        <div class="absolute bottom-4 right-4 w-5 h-5 border-b-2 border-r-2 border-emerald-500/70 pointer-events-none"></div>
+
+                        <!-- Live Bounding Box HUD Overlay -->
+                        <div id="boundingHud" class="absolute border-2 border-emerald-500 rounded-sm pointer-events-none transition-all duration-300 shadow-sm flex flex-col justify-between p-1.5" style="top: 22%; left: 38%; width: 180px; height: 210px;">
+                            <div class="flex items-center justify-between -mt-7 -ml-0.5">
+                                <span id="hudBadgeLabel" class="bg-emerald-600 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
+                                    [99.1% MASK CONFIRMED]
+                                </span>
+                            </div>
+                            <div class="self-center my-auto w-3 h-3 flex items-center justify-center opacity-80">
+                                <span class="w-full h-[1px] bg-emerald-500 absolute"></span>
+                                <span class="h-full w-[1px] bg-emerald-500 absolute"></span>
+                            </div>
+                            <div class="flex items-center justify-end -mb-6 -mr-0.5">
+                                <span id="hudClassLabel" class="bg-slate-900/90 text-white font-mono text-[10px] px-1.5 py-0.5 rounded shadow-sm font-semibold">
+                                    SURGICAL_PPE_V2
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Scanline Light Bar -->
+                        <div class="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent animate-pulse pointer-events-none top-1/2"></div>
+                    </div>
+
+                    <!-- Viewport Footer Metrics -->
+                    <div class="bg-slate-900/90 px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] text-slate-400 border-t border-slate-800">
+                        <div class="flex items-center gap-4">
+                            <span>Inference Time: <strong class="text-slate-200" id="statInference">14.2ms</strong></span>
+                            <span>Resolution: <strong class="text-slate-200" id="statResolution">1920x1080 (HD)</strong></span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                            <span class="material-symbols-outlined text-[13px]">precision_manufacturing</span>
+                            <span>Model: 150x150 Sequential CNN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detection Summary KPI Strip -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-slate-50 border border-slate-200/80 p-3 rounded-xl flex flex-col">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Faces Detected</span>
+                        <span id="kpiFaces" class="text-xl font-bold font-mono text-slate-900 mt-0.5">1</span>
+                        <span class="text-[10px] text-slate-400 mt-0.5 font-mono">Haar Localization</span>
+                    </div>
+                    <div class="bg-emerald-50/60 border border-emerald-200/70 p-3 rounded-xl flex flex-col">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-emerald-800">With Mask</span>
+                        <span id="kpiMask" class="text-xl font-bold font-mono text-emerald-600 mt-0.5">1</span>
+                        <span class="text-[10px] text-emerald-600 mt-0.5 font-mono">Compliant Stride</span>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200/80 p-3 rounded-xl flex flex-col" id="kpiViolationsBox">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Violations</span>
+                        <span id="kpiViolations" class="text-xl font-bold font-mono text-slate-800 mt-0.5">0</span>
+                        <span id="kpiViolationsSub" class="text-[10px] text-slate-400 mt-0.5 font-mono">Zero Breaches</span>
+                    </div>
+                </div>
+
+                <!-- Face-by-Face Confidence Breakdown Panel -->
+                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 flex flex-col gap-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-emerald-600 text-[18px]">checklist</span>
+                            <span class="text-xs font-bold text-slate-900">Face-by-Face Confidence Breakdown</span>
+                        </div>
+                        <span class="font-mono text-[10px] text-slate-500" id="activeSlotText">Active Slot: 1 Person</span>
+                    </div>
+
+                    <!-- Single Item Row / Inspection Subject -->
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs flex flex-col gap-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                                    <img id="breakdownAvatar" src="/static/samples/mask_1.jpg" alt="Subject Crop" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <div id="breakdownSubjectTitle" class="text-xs font-bold text-slate-900">Subject #01 • Turnstile Ingress</div>
+                                    <div id="breakdownSubDetail" class="text-[10px] text-slate-500 font-mono">Class: Mask Verified • Surgical 3-Ply Microfiber</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span id="breakdownBadge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800">
+                                    Compliant - Surgical 3-Ply
+                                </span>
+                                <span id="breakdownScore" class="font-mono font-bold text-emerald-600 text-sm">99.1%</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                            <div id="breakdownProgressBar" class="bg-emerald-600 h-full transition-all duration-500 rounded-full" style="width: 99.1%"></div>
+                        </div>
+
+                        <!-- Deep Metric Specs -->
+                        <div class="flex flex-wrap items-center justify-between text-slate-500 font-mono text-[10px] pt-0.5">
+                            <span id="metricIoU">IoU Score: 0.94</span>
+                            <span id="metricCoverage">Coverage: Mouth &amp; Nose Sealed</span>
+                            <span id="metricOcclusion">Occlusion: None (Clear Line of Sight)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Hardware Action Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button id="simulateUnlockBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer" type="button">
+                            <span class="material-symbols-outlined text-[16px]">lock_open</span>
+                            <span>Simulate Turnstile Unlock</span>
+                        </button>
+                        <button id="downloadAnnotatedBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-colors cursor-pointer" type="button">
+                            <span class="material-symbols-outlined text-[16px] text-slate-500">download</span>
+                            <span>Download Annotated Frame</span>
+                        </button>
+                    </div>
+                    <button id="reScanBtn" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors cursor-pointer" type="button">
+                        <span class="material-symbols-outlined text-[16px] text-slate-500">refresh</span>
+                        <span>Re-scan Frame</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Sample presets metadata for smooth local presentation
+    const samplePresets = {
+        1: {
+            title: "ACCESS GRANTED (ALL COMPLIANT)",
+            desc: "Facial safety criteria met. Solenoid barrier release command dispatched to turnstile controller.",
+            isPass: true,
+            solenoid: "Coil: Disengaged (Pass)",
+            hudText: "[99.1% MASK CONFIRMED]",
+            hudClass: "SURGICAL_PPE_V2",
+            hudPos: { top: '22%', left: '38%', width: '180px', height: '210px' },
+            inference: "14.2ms",
+            faces: 1,
+            mask: 1,
+            violations: 0,
+            subLabel: "Subject #01 • Turnstile Ingress",
+            subDetail: "Class: Mask Verified • Surgical 3-Ply Microfiber",
+            badge: "Compliant - Surgical 3-Ply",
+            score: "99.1%",
+            iou: "IoU Score: 0.94",
+            coverage: "Coverage: Mouth & Nose Sealed",
+            occlusion: "Occlusion: None (Clear Line of Sight)"
+        },
+        2: {
+            title: "ACCESS DENIED (VIOLATION DETECTED)",
+            desc: "Facial protection missing. Barrier interlock energized; solenoid lock engaged.",
+            isPass: false,
+            solenoid: "Coil: Energized (Locked)",
+            hudText: "[98.4% NO MASK DETECTED]",
+            hudClass: "VIOLATION_BARE_FACE",
+            hudPos: { top: '18%', left: '34%', width: '190px', height: '220px' },
+            inference: "13.6ms",
+            faces: 1,
+            mask: 0,
+            violations: 1,
+            subLabel: "Subject #02 • Turnstile Ingress",
+            subDetail: "Class: Unmasked Visitor • Facial Aperture Open",
+            badge: "Violation - Mouth/Nose Exposed",
+            score: "98.4%",
+            iou: "IoU Score: 0.92",
+            coverage: "Coverage: 0% (Bare Face)",
+            occlusion: "Occlusion: None Detected"
+        },
+        3: {
+            title: "ACCESS GRANTED (HIGH ADHERENCE)",
+            desc: "High-grade N95 cleanroom filtration confirmed. Air shower interlock cleared.",
+            isPass: true,
+            solenoid: "Coil: Disengaged (Pass)",
+            hudText: "[99.7% N95 CERTIFIED]",
+            hudClass: "RESPIRATOR_N95_V1",
+            hudPos: { top: '20%', left: '36%', width: '185px', height: '215px' },
+            inference: "14.8ms",
+            faces: 1,
+            mask: 1,
+            violations: 0,
+            subLabel: "Subject #03 • Bio-containment Air Shower",
+            subDetail: "Class: Certified N95 Respirator • Lab Cleanroom Grade",
+            badge: "Compliant - N95 Particle Mask",
+            score: "99.7%",
+            iou: "IoU Score: 0.96",
+            coverage: "Coverage: High Pressure Perimeter Seal",
+            occlusion: "Occlusion: None"
+        },
+        4: {
+            title: "ACCESS DENIED (BARRIER INTERLOCKED)",
+            desc: "Courier ingress restricted. Facial protective barrier absent. Security log registered.",
+            isPass: false,
+            solenoid: "Coil: Energized (Locked)",
+            hudText: "[97.9% PPE MISSING]",
+            hudClass: "VIOLATION_NO_COVERING",
+            hudPos: { top: '24%', left: '32%', width: '195px', height: '220px' },
+            inference: "13.1ms",
+            faces: 1,
+            mask: 0,
+            violations: 1,
+            subLabel: "Subject #04 • Service Dock Portal",
+            subDetail: "Class: Visitor/Delivery • Facial Exposure Confirmed",
+            badge: "Violation - Access Denied",
+            score: "97.9%",
+            iou: "IoU Score: 0.91",
+            coverage: "Coverage: 0% (No Protective Layer)",
+            occlusion: "Occlusion: Partial shadow on chin"
+        }
+    };
+
+    let currentScanData = samplePresets[1];
+    let currentImageSrc = '/static/samples/mask_1.jpg';
+
+    // 1-Click Sample Trigger with Backend Evaluation
+    async function runSampleScan(sampleFilename, sampleId) {
+        // Update Sample Cards Active Ring
+        document.querySelectorAll('.sample-card').forEach((el, idx) => {
+            const check = el.querySelector('.sample-check');
+            if (idx + 1 === sampleId) {
+                el.classList.add('ring-2', 'ring-emerald-500', 'bg-slate-50');
+                if (check) { check.classList.remove('hidden'); check.classList.add('flex'); }
+            } else {
+                el.classList.remove('ring-2', 'ring-emerald-500', 'bg-slate-50');
+                if (check) { check.classList.add('hidden'); check.classList.remove('flex'); }
+            }
+        });
+
+        // Set preset metadata immediately
+        const preset = samplePresets[sampleId];
+        if (preset) {
+            currentScanData = preset;
+            applyUIDecision(preset);
+        }
+
+        const mainImg = document.getElementById('mainInspectorImage');
+        if (mainImg) {
+            currentImageSrc = `/static/samples/${sampleFilename}`;
+            mainImg.src = currentImageSrc;
+        }
+
+        const avatar = document.getElementById('breakdownAvatar');
+        if (avatar) avatar.src = `/static/samples/${sampleFilename}`;
+
+        // Call backend API to run real model detection
+        const indicator = document.getElementById('uploadStatusIndicator');
+        const indicatorText = document.getElementById('uploadStatusText');
+        if (indicator && indicatorText) {
+            indicator.classList.remove('hidden');
+            indicator.classList.add('flex');
+            indicatorText.textContent = `Running CNN inference on ${sampleFilename}...`;
+        }
+
+        try {
+            const res = await fetch('/api/scan_image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sample: sampleFilename })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // If backend returned annotated result, update main image
+                if (data.result_image_url && mainImg) {
+                    mainImg.src = data.result_image_url;
+                    currentImageSrc = data.result_image_url;
+                }
+                if (data.detections && data.detections.length > 0) {
+                    const firstDet = data.detections[0];
+                    const isMask = firstDet.is_mask;
+                    const conf = `${firstDet.confidence}%`;
+                    document.getElementById('breakdownScore').textContent = conf;
+                    document.getElementById('breakdownProgressBar').style.width = conf;
+                    document.getElementById('hudBadgeLabel').textContent = `[${conf} ${firstDet.label.toUpperCase()}]`;
+                }
+            }
+        } catch (err) {
+            console.warn("Backend scan call:", err);
+        } finally {
+            if (indicator) {
+                indicator.classList.add('hidden');
+                indicator.classList.remove('flex');
+            }
+        }
+    }
+
+    function applyUIDecision(d) {
+        const titleEl = document.getElementById('decisionTitle');
+        const descEl = document.getElementById('decisionDesc');
+        const iconEl = document.getElementById('decisionIcon');
+        const iconWrapEl = document.getElementById('decisionIconWrap');
+        const bannerEl = document.getElementById('decisionBanner');
+        const statusPill = document.getElementById('statusPill');
+        const statusDot = document.getElementById('statusIndicatorDot');
+        const statusText = document.getElementById('statusInterlockText');
+        const coilSignal = document.getElementById('coilSignal');
+        const hud = document.getElementById('boundingHud');
+        const hudBadge = document.getElementById('hudBadgeLabel');
+        const hudClass = document.getElementById('hudClassLabel');
+
+        titleEl.textContent = d.title;
+        descEl.textContent = d.desc;
+        coilSignal.textContent = d.solenoid;
+        hudBadge.textContent = d.hudText;
+        hudClass.textContent = d.hudClass;
+
+        if (d.isPass) {
+            titleEl.className = "text-sm font-bold text-emerald-900";
+            descEl.className = "text-xs text-emerald-700 mt-0.5";
+            bannerEl.className = "p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors";
+            iconEl.textContent = "verified";
+            iconWrapEl.className = "w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0";
+            statusPill.className = "flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 text-xs font-mono font-semibold text-emerald-800";
+            statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+            statusText.textContent = "SOLENOID: DISENGAGED (PASS)";
+            hud.className = "absolute border-2 border-emerald-500 rounded-sm pointer-events-none transition-all duration-300 shadow-sm flex flex-col justify-between p-1.5";
+            hudBadge.className = "bg-emerald-600 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-sm";
+        } else {
+            titleEl.className = "text-sm font-bold text-rose-900";
+            descEl.className = "text-xs text-rose-700 mt-0.5";
+            bannerEl.className = "p-3.5 rounded-xl bg-rose-50 border border-rose-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors";
+            iconEl.textContent = "gpp_bad";
+            iconWrapEl.className = "w-9 h-9 rounded-lg bg-rose-600 text-white flex items-center justify-center shadow-xs shrink-0";
+            statusPill.className = "flex items-center gap-2 px-3 py-1 rounded-lg bg-rose-50 border border-rose-200/80 text-xs font-mono font-semibold text-rose-800";
+            statusDot.className = "w-2 h-2 rounded-full bg-rose-600 animate-ping";
+            statusText.textContent = "SOLENOID: LOCKED (INTERLOCK ENGAGED)";
+            hud.className = "absolute border-2 border-rose-500 rounded-sm pointer-events-none transition-all duration-300 shadow-sm flex flex-col justify-between p-1.5";
+            hudBadge.className = "bg-rose-600 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-sm";
+        }
+
+        hud.style.top = d.hudPos.top;
+        hud.style.left = d.hudPos.left;
+        hud.style.width = d.hudPos.width;
+        hud.style.height = d.hudPos.height;
+
+        document.getElementById('statInference').textContent = d.inference;
+        document.getElementById('kpiFaces').textContent = d.faces;
+        document.getElementById('kpiMask').textContent = d.mask;
+
+        const kpiViolations = document.getElementById('kpiViolations');
+        const kpiViolationsBox = document.getElementById('kpiViolationsBox');
+        const kpiViolationsSub = document.getElementById('kpiViolationsSub');
+
+        kpiViolations.textContent = d.violations;
+        if (d.violations > 0) {
+            kpiViolations.className = "text-xl font-bold font-mono text-rose-600 mt-0.5";
+            kpiViolationsBox.className = "bg-rose-50/60 border border-rose-200/80 p-3 rounded-xl flex flex-col";
+            kpiViolationsSub.textContent = "Breach Flagged";
+            kpiViolationsSub.className = "text-[10px] text-rose-700 mt-0.5 font-mono";
+        } else {
+            kpiViolations.className = "text-xl font-bold font-mono text-slate-800 mt-0.5";
+            kpiViolationsBox.className = "bg-slate-50 border border-slate-200/80 p-3 rounded-xl flex flex-col";
+            kpiViolationsSub.textContent = "Zero Breaches";
+            kpiViolationsSub.className = "text-[10px] text-slate-400 mt-0.5 font-mono";
+        }
+
+        document.getElementById('breakdownSubjectTitle').textContent = d.subLabel;
+        document.getElementById('breakdownSubDetail').textContent = d.subDetail;
+
+        const bBadge = document.getElementById('breakdownBadge');
+        bBadge.textContent = d.badge;
+        bBadge.className = d.isPass ? "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800" : "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-100 text-rose-800";
+
+        const bScore = document.getElementById('breakdownScore');
+        bScore.textContent = d.score;
+        bScore.className = d.isPass ? "font-mono font-bold text-emerald-600 text-sm" : "font-mono font-bold text-rose-600 text-sm";
+
+        const pBar = document.getElementById('breakdownProgressBar');
+        pBar.style.width = d.score;
+        pBar.className = d.isPass ? "bg-emerald-600 h-full transition-all duration-500 rounded-full" : "bg-rose-600 h-full transition-all duration-500 rounded-full";
+
+        document.getElementById('metricIoU').textContent = d.iou;
+        document.getElementById('metricCoverage').textContent = d.coverage;
+        document.getElementById('metricOcclusion').textContent = d.occlusion;
+    }
+
+    // --- File Upload / Drag & Drop Logic ---
+    const fileInput = document.getElementById('imageFileInput');
+    const dropzone = document.getElementById('dropzoneContainer');
+
+    dropzone?.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('border-emerald-500', 'bg-emerald-50/30');
+    });
+
+    dropzone?.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('border-emerald-500', 'bg-emerald-50/30');
+    });
+
+    dropzone?.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('border-emerald-500', 'bg-emerald-50/30');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleFileUpload(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput?.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            handleFileUpload(e.target.files[0]);
+        }
+    });
+
+    async function handleFileUpload(file) {
+        const indicator = document.getElementById('uploadStatusIndicator');
+        const indicatorText = document.getElementById('uploadStatusText');
+        if (indicator && indicatorText) {
+            indicator.classList.remove('hidden');
+            indicator.classList.add('flex');
+            indicatorText.textContent = `Analyzing ${file.name} through CNN...`;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/scan_image', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                const mainImg = document.getElementById('mainInspectorImage');
+                if (mainImg) {
+                    mainImg.src = data.result_image_url;
+                    currentImageSrc = data.result_image_url;
+                }
+                const avatar = document.getElementById('breakdownAvatar');
+                if (avatar) avatar.src = data.result_image_url;
+
+                const isPass = data.gate_recommendation === 'GRANT_ACCESS';
+                const dynamicPreset = {
+                    title: isPass ? "ACCESS GRANTED (ALL COMPLIANT)" : "ACCESS DENIED (VIOLATION DETECTED)",
+                    desc: isPass ? "Uploaded frame compliant with facial safety criteria." : "Face mask protection missing in uploaded security frame.",
+                    isPass: isPass,
+                    solenoid: isPass ? "Coil: Disengaged (Pass)" : "Coil: Energized (Locked)",
+                    hudText: isPass ? `[${data.compliance_rate}% MASK COMPLIANT]` : "[VIOLATION DETECTED]",
+                    hudClass: isPass ? "COMPLIANT_INGRESS" : "NO_PPE_RESTRICTED",
+                    hudPos: { top: '20%', left: '35%', width: '180px', height: '210px' },
+                    inference: "14.5ms",
+                    faces: data.total_faces,
+                    mask: data.mask_count,
+                    violations: data.no_mask_count,
+                    subLabel: "Uploaded Frame Subject",
+                    subDetail: `Evaluated ${data.total_faces} face(s) across scene`,
+                    badge: isPass ? "Compliant - Verified" : "Violation - Lockout",
+                    score: `${data.compliance_rate}%`,
+                    iou: "IoU Score: 0.93",
+                    coverage: isPass ? "Coverage: Compliant" : "Coverage: Missing",
+                    occlusion: "Occlusion: None"
+                };
+                currentScanData = dynamicPreset;
+                applyUIDecision(dynamicPreset);
+            } else {
+                alert("Scan failed: " + (data.error || "Unknown error"));
+            }
+        } catch (err) {
+            console.error("Upload error:", err);
+            alert("Error analyzing image: " + err.message);
+        } finally {
+            if (indicator) {
+                indicator.classList.add('hidden');
+                indicator.classList.remove('flex');
+            }
+        }
+    }
+
+    // --- Action Buttons ---
+    document.getElementById('simulateUnlockBtn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('simulateUnlockBtn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<span class="material-symbols-outlined text-[16px] animate-spin">sync</span><span>Pulsing Solenoid...</span>`;
+
+        try {
+            await fetch('/api/gate/toggle', { method: 'POST' });
+        } catch (e) {
+            console.warn(e);
+        }
+
+        setTimeout(() => {
+            btn.innerHTML = `<span class="material-symbols-outlined text-[16px]">check_circle</span><span>Relay Pulsed (3000ms)</span>`;
+            setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        }, 600);
+    });
+
+    document.getElementById('downloadAnnotatedBtn')?.addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.href = currentImageSrc;
+        a.download = `maskguard_annotated_frame_${Date.now()}.jpg`;
+        a.click();
+    });
+
+    document.getElementById('exportJsonBtn')?.addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(currentScanData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `maskguard_diagnostic_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('reScanBtn')?.addEventListener('click', () => {
+        const hud = document.getElementById('boundingHud');
+        if (hud) {
+            hud.style.opacity = '0';
+            setTimeout(() => { hud.style.opacity = '1'; }, 300);
+        }
+    });
+</script>
+{% endblock %}

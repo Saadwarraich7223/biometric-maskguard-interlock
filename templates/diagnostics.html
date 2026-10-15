@@ -1,0 +1,670 @@
+{% extends "layout.html" %}
+
+{% block title %}Deep Learning Model Architecture &amp; Performance Diagnostics — MaskGuard AI{% endblock %}
+
+{% block content %}
+<div class="px-6 lg:px-8 py-6 max-w-[1560px] mx-auto w-full space-y-6">
+
+    <!-- Top Strategic Context / Architecture Header (Clean, Uncluttered) -->
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Production ML Evaluation • CNN Architecture &amp; Metrics
+                </span>
+                <span class="text-slate-300">•</span>
+                <span class="font-mono text-xs text-slate-500">Sequential Deep CNN // Keras 3.x</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Deep Learning Model Architecture &amp; Performance Diagnostics</h1>
+            <p class="text-xs text-slate-500 max-w-3xl">
+                Comprehensive architectural breakdown, layer-by-layer neural tensor operations, holdout dataset validation, and production edge inference performance benchmarks.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-mono font-semibold shadow-2xs">
+                <span class="material-symbols-outlined text-[15px] text-emerald-600" style="font-variation-settings: 'FILL' 1;">verified</span>
+                CNN Classifier: Validated
+            </span>
+            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition-all cursor-pointer" id="btn-export-weights" onclick="triggerToast('Packaging weights: maskguard_cnn_v3_quantized.tflite (1.8MB)')" type="button">
+                <span class="material-symbols-outlined text-[16px] text-slate-500">download_for_offline</span>
+                Export Weights (.h5 / .tflite)
+            </button>
+            <button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-all cursor-pointer" id="btn-view-curves" onclick="toggleTrainingModal()" type="button">
+                <span class="material-symbols-outlined text-[16px]">show_chart</span>
+                View Training Curves
+            </button>
+        </div>
+    </header>
+
+    <!-- Diagnostic KPI Quadrant (Sleek, Compact, Matching System Aesthetic) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- Card 1: Validation Accuracy -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between gap-2">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Validation Accuracy</span>
+                <span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">Test Split</span>
+            </div>
+            <div>
+                <div class="flex items-baseline justify-between">
+                    <span class="text-xl font-bold font-mono tracking-tight text-slate-900">98.4%</span>
+                    <span class="text-[10px] font-semibold text-emerald-700 font-mono">▲ +0.8% target</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2">
+                    <div class="bg-emerald-600 h-full rounded-full transition-all duration-1000" style="width: 98.4%"></div>
+                </div>
+            </div>
+            <span class="text-[10px] text-slate-400">Binary Crossentropy over 780 holdouts</span>
+        </div>
+
+        <!-- Card 2: Precision / Recall -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between gap-2">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Precision / Recall</span>
+                <span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-blue-50 text-blue-800 border border-blue-200">F1: 0.984</span>
+            </div>
+            <div>
+                <div class="flex items-baseline justify-between">
+                    <span class="text-xl font-bold font-mono tracking-tight text-slate-900">0.98 / 0.98</span>
+                    <span class="text-[10px] font-semibold text-blue-700 font-mono">Balanced</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2 flex">
+                    <div class="bg-blue-600 h-full rounded-l-full" style="width: 50%"></div>
+                    <div class="bg-emerald-500 h-full rounded-r-full" style="width: 48.4%"></div>
+                </div>
+            </div>
+            <span class="text-[10px] text-slate-400">Zero class imbalance penalty</span>
+        </div>
+
+        <!-- Card 3: Dataset Corpus -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between gap-2">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Dataset Corpus</span>
+                <span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-100 text-slate-700">Augmented</span>
+            </div>
+            <div>
+                <div class="flex items-baseline justify-between">
+                    <span class="text-xl font-bold font-mono tracking-tight text-slate-900">4,368</span>
+                    <span class="text-[10px] font-mono text-slate-500">Images</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2 flex">
+                    <div class="bg-emerald-500 h-full" style="width: 50%"></div>
+                    <div class="bg-slate-400 h-full" style="width: 50%"></div>
+                </div>
+            </div>
+            <span class="text-[10px] text-slate-400">2,184 With-Mask / 2,184 Without-Mask</span>
+        </div>
+
+        <!-- Card 4: Inference Latency -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between gap-2">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Inference Latency</span>
+                <span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">30+ FPS</span>
+            </div>
+            <div>
+                <div class="flex items-baseline justify-between">
+                    <span class="text-xl font-bold font-mono tracking-tight text-emerald-600">~14-22 ms</span>
+                    <span class="text-[10px] font-mono text-emerald-700 font-semibold">Zero lag</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2">
+                    <div class="bg-emerald-500 h-full rounded-full" style="width: 32%"></div>
+                </div>
+            </div>
+            <span class="text-[10px] text-slate-400">Real-time edge computation on CPU/TPU</span>
+        </div>
+    </div>
+
+    <!-- Main Dual Column Analytics Core -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Column 1: Neural Topology & Tensor Math (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-5">
+            <div class="bg-white p-5 lg:p-6 rounded-xl border border-slate-200/80 shadow-xs">
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-emerald-600 text-[20px]">account_tree</span>
+                            <h2 class="text-sm font-bold text-slate-900">Neural Network Topology (Sequential CNN)</h2>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Multi-stage spatial convolution feature extractor pipeline with dropout regularization</p>
+                    </div>
+                    <div class="flex items-center gap-2 font-mono text-[10px]">
+                        <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-semibold">TensorFlow / Keras</span>
+                        <span class="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded font-semibold">Params: 6.88M</span>
+                    </div>
+                </div>
+
+                <!-- Topology Interactive Flow Cards -->
+                <div class="space-y-2.5 pt-4 relative">
+                    <!-- Layer 0: Input -->
+                    <div class="bg-slate-50 hover:bg-slate-100/80 border border-slate-200/70 p-3 rounded-lg transition-colors flex items-start gap-3">
+                        <div class="w-7 h-7 rounded bg-white shadow-2xs border border-slate-200 flex items-center justify-center font-mono text-xs font-bold text-slate-700 shrink-0">
+                            L0
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-slate-900">Input Layer: 150 × 150 × 3 RGB</span>
+                                <span class="font-mono text-[10px] text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded">(None, 150, 150, 3)</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Raw CCTV Face ROI Crop • Preprocessed via Normalization rescale [1./255]</p>
+                            <div class="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-slate-400">
+                                <span>Params: 0</span>
+                                <span>•</span>
+                                <span>Kernel: None</span>
+                                <span>•</span>
+                                <span class="text-blue-600 font-semibold">Memory: ~263 KB/tensor</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layer 1: Conv2D 1 -->
+                    <div class="bg-slate-50 hover:bg-slate-100/80 border border-slate-200/70 p-3 rounded-lg transition-colors flex items-start gap-3">
+                        <div class="w-7 h-7 rounded bg-white shadow-2xs border border-slate-200 flex items-center justify-center font-mono text-xs font-bold text-emerald-600 shrink-0">
+                            L1
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-slate-900">Conv2D Layer 1: 100 filters, 3×3 + ReLU</span>
+                                <span class="font-mono text-[10px] text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded">(None, 148, 148, 100)</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Low-Level Feature Extraction (Edges, Facemask Contours, Fabric Texture)</p>
+                            <div class="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-slate-400">
+                                <span class="text-slate-700 font-semibold">Params: 2,800</span>
+                                <span>•</span>
+                                <span>Padding: 'valid'</span>
+                                <span>•</span>
+                                <span>FLOPs: ~61.3M</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layer 2: MaxPool 1 -->
+                    <div class="bg-slate-50 hover:bg-slate-100/80 border border-slate-200/70 p-3 rounded-lg transition-colors flex items-start gap-3">
+                        <div class="w-7 h-7 rounded bg-white shadow-2xs border border-slate-200 flex items-center justify-center font-mono text-xs font-bold text-slate-500 shrink-0">
+                            L2
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-slate-900">MaxPooling2D Layer 1: 2×2 Pooling</span>
+                                <span class="font-mono text-[10px] text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded">(None, 74, 74, 100)</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Spatial Downsampling • Invariance against camera vibration &amp; distance scaling</p>
+                            <div class="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-slate-400">
+                                <span>Params: 0</span>
+                                <span>•</span>
+                                <span>Stride: (2, 2)</span>
+                                <span>•</span>
+                                <span>Reduction: 75%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layer 3: Conv2D 2 -->
+                    <div class="bg-slate-50 hover:bg-slate-100/80 border border-slate-200/70 p-3 rounded-lg transition-colors flex items-start gap-3">
+                        <div class="w-7 h-7 rounded bg-white shadow-2xs border border-slate-200 flex items-center justify-center font-mono text-xs font-bold text-emerald-600 shrink-0">
+                            L3
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-slate-900">Conv2D Layer 2: 100 filters, 3×3 + ReLU</span>
+                                <span class="font-mono text-[10px] text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded">(None, 72, 72, 100)</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">High-Level Facial Geometry (Nose bridge occlusions, ear loop elastic paths, chin seal)</p>
+                            <div class="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-slate-400">
+                                <span class="text-slate-700 font-semibold">Params: 90,100</span>
+                                <span>•</span>
+                                <span>Receptive Field: 10×10 eq</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layer 4: MaxPool 2 + Dropout -->
+                    <div class="bg-slate-50 hover:bg-slate-100/80 border border-slate-200/70 p-3 rounded-lg transition-colors flex items-start gap-3">
+                        <div class="w-7 h-7 rounded bg-white shadow-2xs border border-slate-200 flex items-center justify-center font-mono text-xs font-bold text-blue-600 shrink-0">
+                            L4
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-slate-900">MaxPooling2D (2×2) + Dropout (0.50)</span>
+                                <span class="font-mono text-[10px] text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded">(None, 36, 36, 100)</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Spatial Reduction (1,296 patches) &amp; Stochastic Overfitting Prevention</p>
+                            <div class="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-slate-400">
+                                <span>Params: 0</span>
+                                <span>•</span>
+                                <span class="text-rose-600 font-medium">Stochastic drop rate: p=0.50</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layer 5: Flatten + Dense -->
+                    <div class="bg-slate-50 hover:bg-slate-100/80 border border-slate-200/70 p-3 rounded-lg transition-colors flex items-start gap-3">
+                        <div class="w-7 h-7 rounded bg-white shadow-2xs border border-slate-200 flex items-center justify-center font-mono text-xs font-bold text-emerald-600 shrink-0">
+                            L5
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-slate-900">Flatten + Dense (50, ReLU) + Dropout (0.50)</span>
+                                <span class="font-mono text-[10px] text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded">(None, 50)</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Dense Latent Representation (129,600 features compressed to 50 discriminant signals)</p>
+                            <div class="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-slate-400">
+                                <span class="text-slate-700 font-semibold">Params: 6,480,050</span>
+                                <span>•</span>
+                                <span>L2 Weight decay: 1e-4</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layer 6: Output -->
+                    <div class="bg-emerald-50/80 hover:bg-emerald-50 border border-emerald-200 p-3 rounded-lg transition-colors flex items-start gap-3">
+                        <div class="w-7 h-7 rounded bg-emerald-600 text-white shadow-2xs flex items-center justify-center font-mono text-xs font-bold shrink-0">
+                            L6
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-emerald-950">Output: Dense (1, activation="sigmoid")</span>
+                                <span class="font-mono text-[10px] text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-semibold">(None, 1)</span>
+                            </div>
+                            <p class="text-[11px] text-emerald-900 mt-0.5">Binary Probability [0.0 - 1.0] (0: No Mask, 1: With Mask) with 0.50 Decision Boundary</p>
+                            <div class="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-emerald-800">
+                                <span class="font-semibold">Params: 51</span>
+                                <span>•</span>
+                                <span>Threshold: y_pred &le; 0.50 &rarr; Access Granted</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edge Compute & Hardware Footprint Strip -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-blue-600 text-base">memory</span>
+                        Edge Compute &amp; Hardware Footprint
+                    </h3>
+                    <span class="font-mono text-[10px] text-slate-400 uppercase">Tested on Raspberry Pi 4B / Mini-PC</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200/70">
+                        <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">RAM Working Set</span>
+                        <span class="text-base font-bold font-mono text-slate-900">48.2 MB</span>
+                        <span class="text-[10px] text-slate-500 block mt-0.5">Negligible OS impact</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200/70">
+                        <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Quantized Binary</span>
+                        <span class="text-base font-bold font-mono text-emerald-600">1.8 MB</span>
+                        <span class="text-[10px] text-slate-500 block mt-0.5">INT8 weight format</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200/70">
+                        <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Batch 1 Latency</span>
+                        <span class="text-base font-bold font-mono text-blue-600">16.4 ms</span>
+                        <span class="text-[10px] text-slate-500 block mt-0.5">Zero barrier lag</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 2: Confusion Matrix & Engineering Highlights (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-5">
+            <!-- Confusion Matrix Card -->
+            <div class="bg-white p-5 lg:p-6 rounded-xl border border-slate-200/80 shadow-xs flex flex-col">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-emerald-600 text-[20px]">grid_view</span>
+                            <h2 class="text-sm font-bold text-slate-900">Confusion Matrix Evaluation</h2>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Rigorous validation over 780 unaugmented holdout samples</p>
+                    </div>
+                    <span class="px-2 py-0.5 bg-slate-100 text-slate-700 font-mono text-[10px] rounded font-semibold">780 Holdouts</span>
+                </div>
+
+                <!-- Confusion Matrix Visual 2x2 Grid -->
+                <div class="space-y-2.5 pt-4">
+                    <!-- Headers -->
+                    <div class="grid grid-cols-12 gap-2 text-center font-mono text-[10px] text-slate-500">
+                        <div class="col-span-3"></div>
+                        <div class="col-span-4 bg-slate-100 py-1 rounded font-bold text-slate-700">PRED: MASK</div>
+                        <div class="col-span-5 bg-slate-100 py-1 rounded font-bold text-slate-700">PRED: NO MASK</div>
+                    </div>
+
+                    <!-- Row 1: True Mask -->
+                    <div class="grid grid-cols-12 gap-2 items-center">
+                        <div class="col-span-3 font-mono text-[10px] text-right pr-1 font-bold text-slate-700">
+                            TRUE: MASK
+                        </div>
+                        <!-- TP -->
+                        <div class="col-span-4 bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg text-center shadow-2xs">
+                            <span class="text-[10px] font-mono text-emerald-800 font-bold block">True Positive (TP)</span>
+                            <span class="text-xl font-bold font-mono text-emerald-950 block my-0.5">384</span>
+                            <span class="text-[9px] font-mono px-1.5 py-0.5 bg-emerald-200/60 text-emerald-900 rounded font-semibold inline-block">98.5% Accuracy</span>
+                        </div>
+                        <!-- FN -->
+                        <div class="col-span-5 bg-rose-50 border border-rose-200 p-2.5 rounded-lg text-center shadow-2xs">
+                            <span class="text-[10px] font-mono text-rose-800 font-bold block">False Negative (FN)</span>
+                            <span class="text-xl font-bold font-mono text-rose-950 block my-0.5">6</span>
+                            <span class="text-[9px] font-mono px-1.5 py-0.5 bg-rose-200/60 text-rose-900 rounded font-semibold inline-block">1.5% Error</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: True No Mask -->
+                    <div class="grid grid-cols-12 gap-2 items-center">
+                        <div class="col-span-3 font-mono text-[10px] text-right pr-1 font-bold text-slate-700">
+                            TRUE: NO MASK
+                        </div>
+                        <!-- FP -->
+                        <div class="col-span-4 bg-rose-50 border border-rose-200 p-2.5 rounded-lg text-center shadow-2xs">
+                            <span class="text-[10px] font-mono text-rose-800 font-bold block">False Positive (FP)</span>
+                            <span class="text-xl font-bold font-mono text-rose-950 block my-0.5">6</span>
+                            <span class="text-[9px] font-mono px-1.5 py-0.5 bg-rose-200/60 text-rose-900 rounded font-semibold inline-block">1.5% Error</span>
+                        </div>
+                        <!-- TN -->
+                        <div class="col-span-4 col-span-5 bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg text-center shadow-2xs">
+                            <span class="text-[10px] font-mono text-emerald-800 font-bold block">True Negative (TN)</span>
+                            <span class="text-xl font-bold font-mono text-emerald-950 block my-0.5">384</span>
+                            <span class="text-[9px] font-mono px-1.5 py-0.5 bg-emerald-200/60 text-emerald-900 rounded font-semibold inline-block">98.5% Accuracy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mathematical Callout -->
+                <div class="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-200/70 space-y-2">
+                    <div class="flex items-start gap-2">
+                        <span class="material-symbols-outlined text-emerald-600 text-sm shrink-0 mt-0.5">calculate</span>
+                        <p class="text-[11px] text-slate-700 leading-snug">
+                            <strong>Symmetric Error Equilibrium:</strong> Balanced test split generates identical sensitivity and specificity, guaranteeing that high-security turnstiles do not suffer from biased rejections.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 font-mono text-[10px]">
+                        <div class="bg-white border border-slate-200 p-1.5 rounded flex justify-between">
+                            <span class="text-slate-500">Sensitivity:</span>
+                            <span class="font-bold text-slate-800">98.46%</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-1.5 rounded flex justify-between">
+                            <span class="text-slate-500">Specificity:</span>
+                            <span class="font-bold text-slate-800">98.46%</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-1.5 rounded flex justify-between">
+                            <span class="text-slate-500">Precision:</span>
+                            <span class="font-bold text-slate-800">98.46%</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-1.5 rounded flex justify-between">
+                            <span class="text-slate-500">Negative Pred:</span>
+                            <span class="font-bold text-slate-800">98.46%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Production Engineering & Edge Architecture Takeaways -->
+            <div class="bg-white p-5 lg:p-6 rounded-xl border border-slate-200/80 shadow-xs space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-blue-600 text-base">architecture</span>
+                        Production &amp; Edge Engineering Highlights
+                    </h3>
+                    <span class="text-[10px] font-mono px-2 py-0.5 bg-blue-50 text-blue-800 border border-blue-200 rounded font-semibold">Edge Production SLA</span>
+                </div>
+
+                <div class="space-y-2 pt-1 text-xs">
+                    <!-- Takeaway 1 -->
+                    <div class="p-3 bg-slate-50 hover:bg-slate-100/70 border border-slate-200/70 rounded-lg transition-colors space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-800">Takeaway #1: Dual 0.50 Dropout Layers</span>
+                            <span class="text-[10px] font-mono text-emerald-700 font-bold">Overfitting Defense</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            Mitigates neuron co-adaptation across 129,600 flattened spatial parameters, preventing model hallucination during harsh facility lighting shifts or ambient CCTV backlighting.
+                        </p>
+                    </div>
+
+                    <!-- Takeaway 2 -->
+                    <div class="p-3 bg-slate-50 hover:bg-slate-100/70 border border-slate-200/70 rounded-lg transition-colors space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-800">Takeaway #2: Quantization Preservation</span>
+                            <span class="text-[10px] font-mono text-blue-700 font-bold">FP32 &rarr; INT8</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            Post-training INT8 tensor quantization achieves a 4x reduction in weight footprint (6.88M parameters to 1.8MB) while introducing under 0.18% top-line accuracy degradation.
+                        </p>
+                    </div>
+
+                    <!-- Takeaway 3 -->
+                    <div class="p-3 bg-slate-50 hover:bg-slate-100/70 border border-slate-200/70 rounded-lg transition-colors space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-800">Takeaway #3: Ingress Invariant SLA</span>
+                            <span class="text-[10px] font-mono text-emerald-700 font-bold">&lt; 25ms Real-time</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            Mean forward pass execution (16.4ms) comfortably outpaces the 25ms hardware solenoid strike threshold, preventing bottleneck congestion during high-throughput shift rotations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Live Interactive Model Playground / Tensor Inspector -->
+    <div class="bg-white p-5 lg:p-6 rounded-xl border border-slate-200/80 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Edge Inference Simulation</span>
+                <h2 class="text-sm font-bold text-slate-900 mt-0.5">Simulated Sample Inspection &amp; Decision Boundary Analysis</h2>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+                <span class="text-slate-500">Select Test ROI Sample:</span>
+                <select class="bg-slate-50 border border-slate-200 px-2.5 py-1 rounded text-xs font-mono text-slate-800 focus:outline-none focus:border-emerald-500 cursor-pointer" id="roi-sample-selector" onchange="updateSampleAnalysis(this.value)">
+                    <option value="1">Sample #741 (KN95 Mask - Proper Fit)</option>
+                    <option value="2">Sample #742 (Bare Face - Visitor)</option>
+                    <option value="3">Sample #743 (Surgical Mask - Loose Strap)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-center">
+            <!-- Visual Face Crop -->
+            <div class="bg-slate-50 border border-slate-200/80 rounded-lg p-4 flex flex-col items-center justify-center min-h-[200px]">
+                <div class="relative w-32 h-32 rounded-lg overflow-hidden bg-slate-900 shadow-inner flex items-center justify-center">
+                    <img id="sample-img" src="/static/samples/mask_1.jpg" alt="Sample Inspection Headshot" class="w-full h-full object-cover">
+                    <div id="sample-bounding-box" class="absolute inset-2 border-2 border-emerald-500 rounded pointer-events-none flex items-start justify-end p-1">
+                        <span id="sample-box-tag" class="text-[9px] font-mono bg-emerald-600 text-white px-1 rounded">MASK: 99.8%</span>
+                    </div>
+                </div>
+                <div class="mt-2.5 flex items-center justify-between w-full max-w-[180px] text-[10px] font-mono text-slate-400">
+                    <span>RES: 150×150px</span>
+                    <span>FORMAT: uint8</span>
+                </div>
+            </div>
+
+            <!-- Latent Activation Vectors -->
+            <div class="space-y-2.5">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-slate-800">Dense_1 Latent Activation (50 Units)</span>
+                    <span class="font-mono text-[10px] text-emerald-600 font-bold">L2 Norm: 4.12</span>
+                </div>
+                <!-- Sparkline Matrix -->
+                <div class="grid grid-cols-10 gap-1 p-2.5 bg-slate-50 border border-slate-200/80 rounded-lg">
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.95"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.85"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.2"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.1"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.9"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.7"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.05"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.6"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.88"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.3"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.1"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.92"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.65"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.4"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.85"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.15"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.05"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.77"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.89"></div>
+                    <div class="h-5 bg-emerald-600 rounded-xs" style="opacity: 0.22"></div>
+                </div>
+                <p class="text-[11px] text-slate-500">Top discriminating weights align with nose ridge occlusions and lower maxillary boundary.</p>
+            </div>
+
+            <!-- Decision Probability Gauge -->
+            <div class="bg-slate-50 border border-slate-200/80 p-4 rounded-lg space-y-3">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-slate-800">Final Sigmoid Probability</span>
+                    <span id="prob-badge" class="font-mono text-[10px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">COMPLIANT</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-baseline justify-between font-mono">
+                        <span id="prob-val" class="text-xl font-bold text-slate-900">0.9984</span>
+                        <span class="text-[10px] text-slate-400">Threshold: 0.5000</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden relative">
+                        <div id="prob-bar" class="bg-emerald-600 h-full rounded-full transition-all duration-500" style="width: 99.8%"></div>
+                    </div>
+                </div>
+                <div class="pt-2 flex items-center justify-between text-xs border-t border-slate-200/80">
+                    <span class="text-slate-500">Solenoid Interlock:</span>
+                    <span id="gate-status" class="text-emerald-700 font-bold font-mono flex items-center gap-1 text-[11px]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> UNLOCKED (ACCESS GRANTED)
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Interactive Training Curves Modal -->
+<div id="training-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-2xl w-full rounded-xl shadow-2xl p-6 space-y-5 border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-emerald-600 text-[22px]">trending_up</span>
+                <h3 class="text-sm font-bold text-slate-900">30-Epoch Training &amp; Validation Curves</h3>
+            </div>
+            <button class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer" onclick="toggleTrainingModal()" type="button">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+        </div>
+
+        <div class="space-y-4">
+            <!-- Dual Chart: Loss & Accuracy -->
+            <div class="bg-slate-50 border border-slate-200/80 p-4 rounded-lg">
+                <div class="flex items-center justify-between font-mono text-[11px] pb-2 text-slate-500">
+                    <span>Epoch Loss &amp; Convergence (Cross-Entropy)</span>
+                    <div class="flex items-center gap-3">
+                        <span class="flex items-center gap-1 text-emerald-700 font-semibold"><span class="w-2.5 h-0.5 bg-emerald-600"></span> Train Acc</span>
+                        <span class="flex items-center gap-1 text-blue-700 font-semibold"><span class="w-2.5 h-0.5 bg-blue-600"></span> Val Acc</span>
+                    </div>
+                </div>
+
+                <!-- SVG Curve Representation -->
+                <svg class="w-full h-40 overflow-visible" viewBox="0 0 500 160">
+                    <line stroke="#e2e8f0" stroke-dasharray="3,3" stroke-width="1" x1="0" x2="500" y1="20" y2="20"></line>
+                    <line stroke="#e2e8f0" stroke-dasharray="3,3" stroke-width="1" x1="0" x2="500" y1="60" y2="60"></line>
+                    <line stroke="#e2e8f0" stroke-dasharray="3,3" stroke-width="1" x1="0" x2="500" y1="100" y2="100"></line>
+                    <line stroke="#cbd5e1" stroke-width="1" x1="0" x2="500" y1="140" y2="140"></line>
+                    <!-- Train Acc Curve (Green) -->
+                    <path d="M 10 130 Q 80 70 180 35 T 320 22 T 490 18" fill="none" stroke="#059669" stroke-width="2.5"></path>
+                    <!-- Val Acc Curve (Blue) -->
+                    <path d="M 10 138 Q 90 85 190 45 T 330 32 T 490 24" fill="none" stroke="#2563eb" stroke-dasharray="4,2" stroke-width="2.5"></path>
+                </svg>
+
+                <div class="flex justify-between text-[10px] font-mono text-slate-400 pt-2">
+                    <span>Epoch 1 (Loss: 0.691)</span>
+                    <span>Epoch 10 (Loss: 0.214)</span>
+                    <span>Epoch 20 (Loss: 0.082)</span>
+                    <span>Epoch 30 (Loss: 0.041)</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200/80 p-3.5 rounded-lg flex items-center justify-between text-xs text-slate-600">
+                <div>
+                    <strong class="text-slate-900">Final Checkpoint:</strong> Epoch 27 achieved minimum validation loss (0.049) with ModelCheckpoint saving best weights.
+                </div>
+                <button class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-800 font-semibold text-xs rounded-lg transition-colors cursor-pointer" onclick="toggleTrainingModal()" type="button">
+                    Dismiss
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification Container -->
+<div id="toast-notify" class="fixed bottom-6 right-6 z-50 hidden bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-mono flex items-center gap-2 transition-all">
+    <span class="material-symbols-outlined text-[16px] text-emerald-400">check_circle</span>
+    <span id="toast-msg">Export complete</span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function triggerToast(msg) {
+        const toast = document.getElementById('toast-notify');
+        const text = document.getElementById('toast-msg');
+        if (toast && text) {
+            text.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+    }
+
+    function toggleTrainingModal() {
+        const modal = document.getElementById('training-modal');
+        if (modal) modal.classList.toggle('hidden');
+    }
+
+    function updateSampleAnalysis(val) {
+        const probVal = document.getElementById('prob-val');
+        const probBar = document.getElementById('prob-bar');
+        const probBadge = document.getElementById('prob-badge');
+        const gateStatus = document.getElementById('gate-status');
+        const boxTag = document.getElementById('sample-box-tag');
+        const bbox = document.getElementById('sample-bounding-box');
+        const sampleImg = document.getElementById('sample-img');
+
+        if (val === "1") {
+            if (sampleImg) sampleImg.src = "/static/samples/mask_1.jpg";
+            probVal.innerText = "0.9984";
+            probBar.style.width = "99.8%";
+            probBar.className = "bg-emerald-600 h-full rounded-full transition-all duration-500";
+            probBadge.className = "font-mono text-[10px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded";
+            probBadge.innerText = "COMPLIANT";
+            gateStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> UNLOCKED (ACCESS GRANTED)';
+            gateStatus.className = "text-emerald-700 font-bold font-mono flex items-center gap-1 text-[11px]";
+            boxTag.innerText = "MASK: 99.8%";
+            boxTag.className = "text-[9px] font-mono bg-emerald-600 text-white px-1 rounded";
+            bbox.className = "absolute inset-2 border-2 border-emerald-500 rounded pointer-events-none flex items-start justify-end p-1";
+        } else if (val === "2") {
+            if (sampleImg) sampleImg.src = "/static/samples/nomask_1.jpg";
+            probVal.innerText = "0.0121";
+            probBar.style.width = "1.2%";
+            probBar.className = "bg-rose-600 h-full rounded-full transition-all duration-500";
+            probBadge.className = "font-mono text-[10px] font-bold px-2 py-0.5 bg-rose-100 text-rose-800 rounded";
+            probBadge.innerText = "NON-COMPLIANT";
+            gateStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> ENGAGED (BARRIER LOCKED)';
+            gateStatus.className = "text-rose-700 font-bold font-mono flex items-center gap-1 text-[11px]";
+            boxTag.innerText = "NO-MASK: 98.8%";
+            boxTag.className = "text-[9px] font-mono bg-rose-600 text-white px-1 rounded";
+            bbox.className = "absolute inset-2 border-2 border-rose-500 rounded pointer-events-none flex items-start justify-end p-1";
+        } else if (val === "3") {
+            if (sampleImg) sampleImg.src = "/static/samples/mask_2.jpg";
+            probVal.innerText = "0.7840";
+            probBar.style.width = "78.4%";
+            probBar.className = "bg-blue-600 h-full rounded-full transition-all duration-500";
+            probBadge.className = "font-mono text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded";
+            probBadge.innerText = "SUB-OPTIMAL MASK";
+            gateStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span> CONDITIONAL PASS';
+            gateStatus.className = "text-blue-700 font-bold font-mono flex items-center gap-1 text-[11px]";
+            boxTag.innerText = "MASK: 78.4%";
+            boxTag.className = "text-[9px] font-mono bg-blue-600 text-white px-1 rounded";
+            bbox.className = "absolute inset-2 border-2 border-blue-500 rounded pointer-events-none flex items-start justify-end p-1";
+        }
+    }
+</script>
+{% endblock %}

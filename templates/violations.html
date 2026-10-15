@@ -1,0 +1,1009 @@
+{% extends "layout.html" %}
+
+{% block title %}Incident Audit Records &amp; Forensics — MaskGuard AI{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-7xl mx-auto px-6 lg:px-8 py-8 flex flex-col gap-6">
+
+    <!-- Top Header & Actions -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
+        <div class="flex flex-col gap-1.5">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200/70 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Forensic Audit Log • Security Database Storage
+                </span>
+                <span class="text-slate-300">•</span>
+                <span class="font-mono text-xs text-slate-500 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">database</span>
+                    DB Archive Node: Edge-TX2
+                </span>
+            </div>
+            <h1 class="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">Non-Compliance Incident Audit Records</h1>
+            <p class="text-xs text-slate-500">Real-time automated logging of biometric gate interlocks, AI facial masking verifications, and security events.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2.5">
+            <button id="btn-filter-attributes-toggle" class="px-3.5 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition-all text-xs font-semibold flex items-center gap-1.5 cursor-pointer" type="button">
+                <span class="material-symbols-outlined text-base text-slate-500">tune</span>
+                Filter Attributes
+            </button>
+            <a href="/api/violations/export" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+                <span class="material-symbols-outlined text-base">download</span>
+                Export CSV Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Collapsible Advanced Filter Attributes Panel -->
+    <div id="advanced-attributes-panel" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200/80 shadow-2xs transition-all">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-4 text-xs">
+                <div>
+                    <label class="block font-mono text-[11px] text-slate-500 font-semibold mb-1">Camera Node</label>
+                    <select id="attr-camera-filter" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <option value="ALL">All Nodes</option>
+                        <option value="CAM-01-ENTRANCE">CAM-01-ENTRANCE (Sector A)</option>
+                        <option value="LAPTOP-WEBCAM">LAPTOP-WEBCAM</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-mono text-[11px] text-slate-500 font-semibold mb-1">Min Confidence (%)</label>
+                    <select id="attr-conf-filter" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <option value="0">Any Confidence</option>
+                        <option value="70">&ge; 70% Confidence</option>
+                        <option value="85">&ge; 85% Confidence</option>
+                        <option value="95">&ge; 95% Confidence</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-mono text-[11px] text-slate-500 font-semibold mb-1">Hardware Gate Status</label>
+                    <select id="attr-gate-filter" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <option value="ALL">All States</option>
+                        <option value="LOCKED">LOCKED (Breaches)</option>
+                        <option value="UNLOCKED">UNLOCKED (Passes)</option>
+                    </select>
+                </div>
+            </div>
+            <button id="btn-reset-attributes" class="text-xs text-slate-500 hover:text-slate-800 font-mono underline cursor-pointer" type="button">
+                Reset Attributes
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
+        <div class="flex flex-wrap items-center gap-2.5">
+            <div class="relative flex items-center">
+                <span class="material-symbols-outlined text-slate-400 text-sm absolute left-3 pointer-events-none">search</span>
+                <input id="search-input" class="bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all w-64" placeholder="Search Log ID, Emp ID, or Node..." type="text" value=""/>
+            </div>
+            <div class="h-5 w-px bg-slate-200 hidden sm:block"></div>
+            <div class="flex items-center gap-1.5">
+                <span class="text-xs font-semibold text-slate-500 font-mono hidden sm:inline">Filter:</span>
+                <button id="btn-filter-violations" class="px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer" type="button">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                    Violations Only
+                </button>
+                <button id="btn-filter-all" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors cursor-pointer" type="button">
+                    All Records
+                </button>
+                <button id="btn-filter-compliant" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 text-xs font-medium transition-colors cursor-pointer" type="button">
+                    Compliant Only
+                </button>
+                <button id="btn-filter-resolved" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 text-xs font-medium transition-colors cursor-pointer flex items-center gap-1" type="button">
+                    <span class="material-symbols-outlined text-xs text-emerald-600">done_all</span>
+                    Resolved
+                </button>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2.5 text-xs">
+            <span class="inline-flex items-center gap-1 font-mono text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
+                <span class="material-symbols-outlined text-xs text-slate-500">filter_alt</span>
+                <span id="filter-status-label">Filter Status: Showing flagged non-compliance records</span>
+            </span>
+            <span id="total-count-badge" class="font-mono font-semibold text-rose-600 bg-rose-50 border border-rose-200/70 px-2 py-0.5 rounded">
+                Total Logged: {{ incidents|length if incidents else 1 }} entries
+            </span>
+        </div>
+    </div>
+
+    <!-- Active Breach Incident Card vs Cleared Status -->
+    {% set latest_active_violation = None %}
+    {% if incidents %}
+        {% for inc in incidents %}
+            {% if inc.label != 'Mask' and not inc.resolved and not latest_active_violation %}
+                {% set latest_active_violation = inc %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- Featured Critical Breach Incident Record Card -->
+    <div id="featured-breach-card" class="{% if not latest_active_violation and incidents and incidents|length > 0 %}hidden{% endif %} bg-white rounded-xl border border-rose-200/90 shadow-sm p-6 relative overflow-hidden transition-all duration-300">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-rose-500"></div>
+        <div class="flex flex-col lg:flex-row items-start justify-between gap-6">
+            <div class="flex-1 flex flex-col gap-4">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <span id="featured-badge-id" class="px-2.5 py-1 rounded-md bg-rose-100 text-rose-800 font-mono text-xs font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-rose-700">gpp_bad</span>
+                        INCIDENT RECORD #<span id="featured-id-val">{{ latest_active_violation.id if latest_active_violation else 1 }}</span>
+                    </span>
+                    <span id="featured-badge-severity" class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-mono text-[11px] font-semibold">
+                        CRITICAL BREACH
+                    </span>
+                    <span class="text-slate-400">•</span>
+                    <span id="featured-timestamp" class="text-xs font-mono text-slate-500">
+                        Logged: {{ latest_active_violation.date ~ ' ' ~ latest_active_violation.time ~ ' UTC' if latest_active_violation else '2026-10-14 21:48:59 UTC' }}
+                    </span>
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight">Sector-A Turnstile Non-Compliance Lockout</h2>
+                    <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                        An unrecognized individual approached Turnstile Gate A without facial mask protection. Biometric edge sensor TX2 detected violation, triggering immediate solenoid interlock lockout to deny ingress.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200/70 flex flex-col gap-0.5">
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Classification</span>
+                        <span id="featured-classification" class="text-sm font-bold text-rose-700 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">close</span>
+                            {{ latest_active_violation.label if latest_active_violation else 'No Mask' }}
+                        </span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200/70 flex flex-col gap-0.5">
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Confidence Score</span>
+                        <div class="flex items-center gap-1.5">
+                            <span id="featured-confidence" class="text-sm font-bold font-mono text-slate-900">
+                                {{ latest_active_violation.confidence if latest_active_violation else '85.6' }}%
+                            </span>
+                            <span class="text-[10px] font-mono text-rose-600 font-semibold">High Alert</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200/70 flex flex-col gap-0.5">
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Camera Node</span>
+                        <span id="featured-node" class="text-sm font-bold font-mono text-slate-800">
+                            {{ latest_active_violation.camera_id if latest_active_violation else 'CAM-01-ENTRANCE' }}
+                        </span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200/70 flex flex-col gap-0.5">
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Gate Action</span>
+                        <span id="featured-gate" class="text-sm font-bold font-mono text-rose-700 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm text-rose-600">lock</span>
+                            {{ latest_active_violation.gate_status if latest_active_violation else 'LOCKED' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 pt-2">
+                    <!-- Resolve Action Button -->
+                    <button id="btn-resolve-incident" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer" type="button" data-incident-id="{{ latest_active_violation.id if latest_active_violation else 1 }}">
+                        <span class="material-symbols-outlined text-sm">verified</span>
+                        <span id="btn-resolve-text">Acknowledge &amp; Resolve</span>
+                    </button>
+
+                    <!-- Ignore / Dismiss Action Button -->
+                    <button id="btn-ignore-incident" class="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer" type="button" data-incident-id="{{ latest_active_violation.id if latest_active_violation else 1 }}">
+                        <span class="material-symbols-outlined text-sm text-slate-500">visibility_off</span>
+                        <span>Dismiss / Ignore</span>
+                    </button>
+
+                    <!-- Flag for Security Review -->
+                    <button id="btn-flag-review" class="px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer" type="button">
+                        <span class="material-symbols-outlined text-sm text-slate-500">flag</span>
+                        <span id="btn-flag-text">Flag for Review</span>
+                    </button>
+
+                    <span class="font-mono text-[11px] text-slate-500 ml-auto flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-slate-400">memory</span>
+                        Solenoid Coil: <span id="featured-coil-status" class="font-semibold text-rose-700">FORCE ENGAGED</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Turnstile Evidence Frame Column -->
+            <div class="w-full lg:w-80 shrink-0 flex flex-col gap-2">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-semibold text-slate-700 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-slate-500">photo_library</span>
+                        Turnstile Evidence Frame
+                    </span>
+                    <span class="font-mono text-[10px] text-slate-400">Frame #SN-<span id="featured-frame-sn">{{ latest_active_violation.id if latest_active_violation else '982' }}</span></span>
+                </div>
+                <div class="relative rounded-lg overflow-hidden border-2 border-rose-400 aspect-video bg-slate-950 shadow-md group cursor-pointer" onclick="openEvidenceModal(document.getElementById('featured-evidence-img').src, 'Turnstile Evidence Frame #SN-' + (document.getElementById('featured-frame-sn').textContent || '982'))">
+                    {% set demo_img = "https://lh3.googleusercontent.com/aida-public/AB6AXuAbHEtfuSAMekt7gSsnVFFlTLSDDjj2eQyDFZYC_4Uq14iymnp6xipNyR9ppLQ0b62riwH1lJqgRVxIJmu2i5HsHeUt2COHUZaI4Fxj2S03xbsQnSlFvYmKu3If3tncQlUWt4H93Yn26rEeH9ELl_Q0vKQnunlPzfcLe6zhmMTQO3U2IzUZMPgXIwOSlqwnF-bYF3rn4veZtCgolP1rm4xe9EraJc8x8HOOCQtdv6Uj0-gPAwE5anobLg" %}
+                    <img id="featured-evidence-img" alt="Non-compliant visitor security camera capture at entrance turnstile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="{% if latest_active_violation and latest_active_violation.snapshot_path %}/static/{{ latest_active_violation.snapshot_path }}{% elif latest_active_violation and latest_active_violation.face_crop_path %}/static/{{ latest_active_violation.face_crop_path }}{% else %}{{ demo_img }}{% endif %}"/>
+                    <div id="featured-overlay-badge" class="absolute top-2 left-2 bg-rose-600 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
+                        NO MASK DETECTED
+                    </div>
+                    <div id="featured-overlay-conf" class="absolute bottom-2 right-2 bg-slate-900/80 backdrop-blur-md text-white font-mono text-[10px] px-2 py-0.5 rounded">
+                        CONF: {{ latest_active_violation.confidence if latest_active_violation else '85.6' }}%
+                    </div>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/70 text-[11px] font-mono text-slate-600 flex flex-col gap-1">
+                    <div class="flex justify-between">
+                        <span>BBOX COORDS:</span>
+                        <span class="font-bold text-slate-800">[248, 112, 180, 220]</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>INFERENCE TIME:</span>
+                        <span class="font-bold text-emerald-700">14.2ms</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>HARDWARE IO:</span>
+                        <span id="featured-hardware-io" class="font-bold text-rose-700">GPIO-18 HIGH (LOCK)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reassuring "All Breach Alerts Cleared" Card (Shown when all violations are resolved or ignored) -->
+    <div id="all-cleared-card" class="{% if latest_active_violation or not incidents %}hidden{% endif %} bg-white rounded-xl border border-emerald-200/90 shadow-2xs p-5 transition-all duration-300">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+                    <span class="material-symbols-outlined text-2xl">verified_user</span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-sm font-bold text-slate-900">Facility Security Status: All Breach Alerts Cleared</h3>
+                        <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono text-[10px] font-bold">NORMAL INGRESS</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">Non-compliance violations have been acknowledged or resolved. All events archived in the historical table below.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="btn-reopen-featured" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs" type="button">
+                    <span class="material-symbols-outlined text-sm text-slate-500">history</span>
+                    Re-open Last Alert
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recorded Ingress Events Table Card -->
+    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
+        <div class="p-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/50">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-slate-700 text-lg">history_edu</span>
+                <h3 class="text-base font-bold text-slate-900">Recorded Ingress Events</h3>
+                <span id="table-total-count-pill" class="bg-rose-50 text-rose-700 border border-rose-200/80 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
+                    Total Logged: {{ incidents|length if incidents else 3 }} entries
+                </span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-500 font-mono">Auto-Refresh:</span>
+                <span id="auto-refresh-indicator" class="inline-flex items-center gap-1 text-xs text-emerald-700 font-semibold font-mono">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Active (10s)
+                </span>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse" id="incidents-table">
+                <thead class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-mono uppercase tracking-wider text-slate-500">
+                    <tr>
+                        <th class="py-3 px-4">Log ID</th>
+                        <th class="py-3 px-4">Face Snapshot</th>
+                        <th class="py-3 px-4">Timestamp</th>
+                        <th class="py-3 px-4">Classification</th>
+                        <th class="py-3 px-4">Confidence</th>
+                        <th class="py-3 px-4">Camera Node</th>
+                        <th class="py-3 px-4">Gate Action</th>
+                        <th class="py-3 px-4 text-right">Evidence &amp; Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs" id="table-body">
+                    {% if incidents and incidents|length > 0 %}
+                        {% for inc in incidents %}
+                        {% set is_viol = inc.label != 'Mask' %}
+                        {% set is_res = inc.resolved == 1 %}
+                        {% set is_ign = inc.resolved == 2 %}
+                        <tr class="table-row-item {% if is_viol and not is_res and not is_ign %}bg-rose-50/40 hover:bg-rose-50/70{% elif is_res %}bg-emerald-50/30 hover:bg-emerald-50/60{% elif is_ign %}bg-slate-50/60 hover:bg-slate-100/80 opacity-75{% else %}hover:bg-slate-50 opacity-85{% endif %} transition-colors"
+                            id="row-incident-{{ inc.id }}"
+                            data-incident-id="{{ inc.id }}"
+                            data-type="{% if is_res or is_ign %}resolved{% elif is_viol %}violation{% else %}compliant{% endif %}"
+                            data-resolved="{{ inc.resolved }}"
+                            data-camera="{{ inc.camera_id }}"
+                            data-confidence="{{ inc.confidence }}"
+                            data-gate="{{ inc.gate_status }}"
+                            data-search="#{{ '%03d'|format(inc.id) }} {{ inc.label }} {{ inc.camera_id }} {{ inc.gate_status }} {{ inc.date }} {{ inc.time }} {% if is_res %}resolved{% elif is_ign %}dismissed ignored{% endif %}">
+                            
+                            <td class="py-3.5 px-4 font-mono font-bold {% if is_viol and not is_res and not is_ign %}text-rose-700{% elif is_res %}text-emerald-700{% else %}text-slate-500{% endif %}">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full {% if is_viol and not is_res and not is_ign %}bg-rose-600{% elif is_res %}bg-emerald-500{% else %}bg-slate-400{% endif %}"></span>
+                                    #{{ "%03d"|format(inc.id) }}
+                                </div>
+                            </td>
+
+                            <td class="py-3.5 px-4">
+                                {% if inc.face_crop_path %}
+                                <div class="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 border {% if is_viol and not is_res and not is_ign %}border-rose-300 bg-rose-100{% elif is_res %}border-emerald-300 bg-emerald-100{% else %}border-slate-200 bg-slate-50{% endif %} flex items-center justify-center shadow-xs cursor-pointer hover:scale-105 transition-transform" onclick="openEvidenceModal('/static/{{ inc.face_crop_path }}', 'Face Crop Snapshot #{{ inc.id }}')">
+                                    <img alt="Person snapshot" class="w-full h-full object-cover" src="/static/{{ inc.face_crop_path }}"/>
+                                </div>
+                                {% elif inc.snapshot_path %}
+                                <div class="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-slate-100 flex items-center justify-center shadow-xs cursor-pointer hover:scale-105 transition-transform" onclick="openEvidenceModal('/static/{{ inc.snapshot_path }}', 'Turnstile Capture #{{ inc.id }}')">
+                                    <img alt="Person snapshot" class="w-full h-full object-cover" src="/static/{{ inc.snapshot_path }}"/>
+                                </div>
+                                {% else %}
+                                <div class="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-slate-100 flex items-center justify-center text-slate-400">
+                                    <span class="material-symbols-outlined text-lg">person</span>
+                                </div>
+                                {% endif %}
+                            </td>
+
+                            <td class="py-3.5 px-4 font-mono text-slate-700 whitespace-nowrap">
+                                <div>{{ inc.date }}</div>
+                                <div class="text-[11px] text-slate-400">{{ inc.time }} UTC</div>
+                            </td>
+
+                            <td class="py-3.5 px-4">
+                                {% if is_res %}
+                                <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-bold font-mono text-[11px]">
+                                    <span class="material-symbols-outlined text-[13px]">done_all</span> Resolved
+                                </span>
+                                {% elif is_ign %}
+                                <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded font-mono font-semibold text-[11px]">
+                                    <span class="material-symbols-outlined text-[13px]">visibility_off</span> Dismissed
+                                </span>
+                                {% elif is_viol %}
+                                <span class="inline-flex items-center gap-1 bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded font-bold font-mono text-[11px]">
+                                    <span class="material-symbols-outlined text-[13px]">close</span> No Mask
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-semibold text-[11px]">
+                                    <span class="material-symbols-outlined text-[13px]">check</span> Mask Verified
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="py-3.5 px-4 font-mono">
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                        <div class="h-full {% if is_viol and not is_res and not is_ign %}bg-rose-600{% elif is_res %}bg-emerald-600{% else %}bg-slate-400{% endif %} rounded-full" style="width: {{ inc.confidence }}%"></div>
+                                    </div>
+                                    <span class="font-bold {% if is_viol and not is_res and not is_ign %}text-rose-700{% elif is_res %}text-emerald-700{% else %}text-slate-600{% endif %}">{{ inc.confidence }}%</span>
+                                </div>
+                            </td>
+
+                            <td class="py-3.5 px-4 font-mono text-slate-800 font-medium">
+                                <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">{{ inc.camera_id }}</span>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Sector-A Turnstile</div>
+                            </td>
+
+                            <td class="py-3.5 px-4">
+                                {% if inc.gate_status == 'UNLOCKED' %}
+                                <span class="inline-flex items-center gap-1 text-emerald-700 font-mono font-semibold text-[11px]">
+                                    <span class="material-symbols-outlined text-xs">lock_open</span> UNLOCKED
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1 bg-rose-100 text-rose-800 border border-rose-200 px-2.5 py-0.5 rounded font-mono font-bold text-[11px]">
+                                    <span class="material-symbols-outlined text-xs">lock</span> LOCKED
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-right">
+                                <div class="inline-flex items-center justify-end gap-1.5">
+                                    {% if inc.snapshot_path %}
+                                    <button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors text-xs font-semibold shadow-2xs cursor-pointer" type="button" onclick="openEvidenceModal('/static/{{ inc.snapshot_path }}', 'Incident Evidence #{{ inc.id }}')">
+                                        <span class="material-symbols-outlined text-sm">photo_library</span> View Photo
+                                    </button>
+                                    {% elif inc.face_crop_path %}
+                                    <button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium transition-colors cursor-pointer" type="button" onclick="openEvidenceModal('/static/{{ inc.face_crop_path }}', 'Snapshot #{{ inc.id }}')">
+                                        <span class="material-symbols-outlined text-xs">visibility</span> Details
+                                    </button>
+                                    {% endif %}
+
+                                    {% if is_viol and not is_res and not is_ign %}
+                                    <button class="inline-flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer" type="button" onclick="resolveRowIncident({{ inc.id }})" title="Mark as resolved">
+                                        <span class="material-symbols-outlined text-xs">check</span>
+                                    </button>
+                                    {% elif is_res or is_ign %}
+                                    <button class="inline-flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 text-xs font-medium transition-colors cursor-pointer" type="button" onclick="reopenRowIncident({{ inc.id }})" title="Reopen alert">
+                                        <span class="material-symbols-outlined text-xs">undo</span>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Reference demo rows -->
+                        <tr class="table-row-item bg-rose-50/40 hover:bg-rose-50/70 transition-colors" id="row-incident-1" data-incident-id="1" data-type="violation" data-resolved="0" data-camera="CAM-01-ENTRANCE" data-confidence="85.6" data-gate="LOCKED" data-search="#001 No Mask CAM-01-ENTRANCE LOCKED 2026-10-14 21:48:59">
+                            <td class="py-3.5 px-4 font-mono font-bold text-rose-700">
+                                <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-600"></span>#001</div>
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <div class="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-rose-300 bg-rose-100 flex items-center justify-center shadow-xs cursor-pointer" onclick="openEvidenceModal('https://lh3.googleusercontent.com/aida-public/AB6AXuAbHEtfuSAMekt7gSsnVFFlTLSDDjj2eQyDFZYC_4Uq14iymnp6xipNyR9ppLQ0b62riwH1lJqgRVxIJmu2i5HsHeUt2COHUZaI4Fxj2S03xbsQnSlFvYmKu3If3tncQlUWt4H93Yn26rEeH9ELl_Q0vKQnunlPzfcLe6zhmMTQO3U2IzUZMPgXIwOSlqwnF-bYF3rn4veZtCgolP1rm4xe9EraJc8x8HOOCQtdv6Uj0-gPAwE5anobLg', 'Incident Record #001')">
+                                    <img alt="Person without mask snapshot" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbHEtfuSAMekt7gSsnVFFlTLSDDjj2eQyDFZYC_4Uq14iymnp6xipNyR9ppLQ0b62riwH1lJqgRVxIJmu2i5HsHeUt2COHUZaI4Fxj2S03xbsQnSlFvYmKu3If3tncQlUWt4H93Yn26rEeH9ELl_Q0vKQnunlPzfcLe6zhmMTQO3U2IzUZMPgXIwOSlqwnF-bYF3rn4veZtCgolP1rm4xe9EraJc8x8HOOCQtdv6Uj0-gPAwE5anobLg"/>
+                                </div>
+                            </td>
+                            <td class="py-3.5 px-4 font-mono text-slate-700 whitespace-nowrap">
+                                <div>2026-10-14</div>
+                                <div class="text-[11px] text-slate-400">21:48:59 UTC</div>
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center gap-1 bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded font-bold font-mono text-[11px]">
+                                    <span class="material-symbols-outlined text-[13px]">close</span> No Mask
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4 font-mono">
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                        <div class="h-full bg-rose-600 rounded-full" style="width: 85.6%"></div>
+                                    </div>
+                                    <span class="font-bold text-rose-700">85.6%</span>
+                                </div>
+                            </td>
+                            <td class="py-3.5 px-4 font-mono text-slate-800 font-medium">
+                                <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">CAM-01-ENTRANCE</span>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Sector-A Turnstile</div>
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center gap-1 bg-rose-100 text-rose-800 border border-rose-200 px-2.5 py-0.5 rounded font-mono font-bold text-[11px]">
+                                    <span class="material-symbols-outlined text-xs">lock</span> LOCKED
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4 text-right">
+                                <div class="inline-flex items-center justify-end gap-1.5">
+                                    <button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 transition-colors text-xs font-semibold shadow-xs cursor-pointer" type="button" onclick="openEvidenceModal('https://lh3.googleusercontent.com/aida-public/AB6AXuAbHEtfuSAMekt7gSsnVFFlTLSDDjj2eQyDFZYC_4Uq14iymnp6xipNyR9ppLQ0b62riwH1lJqgRVxIJmu2i5HsHeUt2COHUZaI4Fxj2S03xbsQnSlFvYmKu3If3tncQlUWt4H93Yn26rEeH9ELl_Q0vKQnunlPzfcLe6zhmMTQO3U2IzUZMPgXIwOSlqwnF-bYF3rn4veZtCgolP1rm4xe9EraJc8x8HOOCQtdv6Uj0-gPAwE5anobLg', 'Turnstile Evidence Frame #001')">
+                                        <span class="material-symbols-outlined text-sm">photo_library</span> View Photo
+                                    </button>
+                                    <button class="inline-flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer" type="button" onclick="resolveRowIncident(1)" title="Mark as resolved">
+                                        <span class="material-symbols-outlined text-xs">check</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="table-row-item hover:bg-slate-50 transition-colors opacity-75" data-type="compliant" data-resolved="0" data-camera="CAM-01-ENTRANCE" data-confidence="99.2" data-gate="UNLOCKED" data-search="#000-REF1 Mask Verified CAM-01-ENTRANCE UNLOCKED 2026-10-14 21:47:12">
+                            <td class="py-3 px-4 font-mono text-slate-500">#000-REF1</td>
+                            <td class="py-3 px-4">
+                                <div class="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-emerald-200 bg-emerald-50 flex items-center justify-center cursor-pointer" onclick="openEvidenceModal('https://lh3.googleusercontent.com/aida-public/AB6AXuAyOBdGwfYY0kcw0ixUV6TvVmJAy3Ob5SpaZwtpk1O-NLIPl1Epqly6uVzUDKmnI5RQ57VL9GMkvI7OfGUm3wfz6eBX9WC-AINxBDDCyfHmj1GZjkSqJubFp1IKgsBSgtDrFUKO5gyAN-qfJSrWmlj4aXXyde4IkDNyq0P3JCb00HgknXK_jRuXbwKClGoKhIyI2uUeluQuO7rTgWR8_dACGlUU2Md7K-lOaMflYaI3AGcOJziFUU1CZg', 'Verified Ingress #000-REF1')">
+                                    <img alt="Person with mask snapshot" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyOBdGwfYY0kcw0ixUV6TvVmJAy3Ob5SpaZwtpk1O-NLIPl1Epqly6uVzUDKmnI5RQ57VL9GMkvI7OfGUm3wfz6eBX9WC-AINxBDDCyfHmj1GZjkSqJubFp1IKgsBSgtDrFUKO5gyAN-qfJSrWmlj4aXXyde4IkDNyq0P3JCb00HgknXK_jRuXbwKClGoKhIyI2uUeluQuO7rTgWR8_dACGlUU2Md7K-lOaMflYaI3AGcOJziFUU1CZg"/>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 font-mono text-slate-500 whitespace-nowrap">
+                                <div>2026-10-14</div>
+                                <div class="text-[11px] text-slate-400">21:47:12 UTC</div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-semibold text-[11px]">
+                                    <span class="material-symbols-outlined text-[13px]">check</span> Mask Verified
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 font-mono text-slate-600">99.2%</td>
+                            <td class="py-3 px-4 font-mono text-slate-600">CAM-01-ENTRANCE</td>
+                            <td class="py-3 px-4">
+                                <span class="inline-flex items-center gap-1 text-emerald-700 font-mono font-semibold text-[11px]">
+                                    <span class="material-symbols-outlined text-xs">lock_open</span> UNLOCKED
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 text-right">
+                                <button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium transition-colors cursor-pointer" type="button" onclick="openEvidenceModal('https://lh3.googleusercontent.com/aida-public/AB6AXuAyOBdGwfYY0kcw0ixUV6TvVmJAy3Ob5SpaZwtpk1O-NLIPl1Epqly6uVzUDKmnI5RQ57VL9GMkvI7OfGUm3wfz6eBX9WC-AINxBDDCyfHmj1GZjkSqJubFp1IKgsBSgtDrFUKO5gyAN-qfJSrWmlj4aXXyde4IkDNyq0P3JCb00HgknXK_jRuXbwKClGoKhIyI2uUeluQuO7rTgWR8_dACGlUU2Md7K-lOaMflYaI3AGcOJziFUU1CZg', 'Verified Ingress #000-REF1')">
+                                    <span class="material-symbols-outlined text-xs">visibility</span> Details
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr class="table-row-item hover:bg-slate-50 transition-colors opacity-75" data-type="compliant" data-resolved="0" data-camera="CAM-01-ENTRANCE" data-confidence="98.7" data-gate="UNLOCKED" data-search="#000-REF2 Mask Verified CAM-01-ENTRANCE UNLOCKED 2026-10-14 21:44:30">
+                            <td class="py-3 px-4 font-mono text-slate-500">#000-REF2</td>
+                            <td class="py-3 px-4">
+                                <div class="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-emerald-200 bg-emerald-50 flex items-center justify-center cursor-pointer" onclick="openEvidenceModal('https://lh3.googleusercontent.com/aida-public/AB6AXuAfuDwd6v0qmdY3-GVnlU1kk-UVu8lSGYwWmwaalIfTpnku1ReDMVKfVpepN7xnPBm1sZVOXT_ItU5La-M8drjc8g5DwguIOG6Pqc9Qn80MPuKlXZtsSENn45fmbRp9Ha93fVTKhUDdJpIbJcb0iPqKeUERZXfsCNcmHVBlYLgo5IfaQ-Q97ehDr_g0mzFEWwYcrecFVx7tCzCWSrf90bitr7cPm1ztCDy5VZ3-q0aEWFC5ImpdB6_5eg', 'Verified Ingress #000-REF2')">
+                                    <img alt="Visitor with mask snapshot" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfuDwd6v0qmdY3-GVnlU1kk-UVu8lSGYwWmwaalIfTpnku1ReDMVKfVpepN7xnPBm1sZVOXT_ItU5La-M8drjc8g5DwguIOG6Pqc9Qn80MPuKlXZtsSENn45fmbRp9Ha93fVTKhUDdJpIbJcb0iPqKeUERZXfsCNcmHVBlYLgo5IfaQ-Q97ehDr_g0mzFEWwYcrecFVx7tCzCWSrf90bitr7cPm1ztCDy5VZ3-q0aEWFC5ImpdB6_5eg"/>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 font-mono text-slate-500 whitespace-nowrap">
+                                <div>2026-10-14</div>
+                                <div class="text-[11px] text-slate-400">21:44:30 UTC</div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-semibold text-[11px]">
+                                    <span class="material-symbols-outlined text-[13px]">check</span> Mask Verified
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 font-mono text-slate-600">98.7%</td>
+                            <td class="py-3 px-4 font-mono text-slate-600">CAM-01-ENTRANCE</td>
+                            <td class="py-3 px-4">
+                                <span class="inline-flex items-center gap-1 text-emerald-700 font-mono font-semibold text-[11px]">
+                                    <span class="material-symbols-outlined text-xs">lock_open</span> UNLOCKED
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 text-right">
+                                <button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium transition-colors cursor-pointer" type="button" onclick="openEvidenceModal('https://lh3.googleusercontent.com/aida-public/AB6AXuAfuDwd6v0qmdY3-GVnlU1kk-UVu8lSGYwWmwaalIfTpnku1ReDMVKfVpepN7xnPBm1sZVOXT_ItU5La-M8drjc8g5DwguIOG6Pqc9Qn80MPuKlXZtsSENn45fmbRp9Ha93fVTKhUDdJpIbJcb0iPqKeUERZXfsCNcmHVBlYLgo5IfaQ-Q97ehDr_g0mzFEWwYcrecFVx7tCzCWSrf90bitr7cPm1ztCDy5VZ3-q0aEWFC5ImpdB6_5eg', 'Verified Ingress #000-REF2')">
+                                    <span class="material-symbols-outlined text-xs">visibility</span> Details
+                                </button>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-3.5 border-t border-slate-100 bg-slate-50/40 flex items-center justify-between text-xs text-slate-500">
+            <span class="font-mono" id="pagination-summary">
+                Showing incident violations and ingress audit logs
+            </span>
+            <div class="flex items-center gap-2">
+                <button id="btn-prev-page" class="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-400 text-xs cursor-not-allowed" disabled type="button">Previous</button>
+                <span class="font-mono font-semibold text-slate-700 px-1">1</span>
+                <button id="btn-next-page" class="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-400 text-xs cursor-not-allowed" disabled type="button">Next</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Photographic Evidence High-Res Modal -->
+<div id="evidenceModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all" style="display: none;" onclick="closeEvidenceModal()">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200" onclick="event.stopPropagation()">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-emerald-600 text-xl">photo_library</span>
+                <h3 id="modal-evidence-title" class="text-sm font-bold text-slate-900">Incident Photographic Evidence</h3>
+            </div>
+            <button class="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer" onclick="closeEvidenceModal()" type="button">
+                <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+        </div>
+        <div class="p-4 bg-slate-950 flex flex-col items-center justify-center min-h-[320px]">
+            <img id="modalEvidenceImg" src="" alt="Photographic Evidence" class="max-h-[65vh] rounded-lg object-contain shadow-lg">
+        </div>
+        <div class="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-mono">
+            <span>MaskGuard Biometric Forensics Archive</span>
+            <button class="px-3 py-1 rounded bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 font-semibold cursor-pointer" onclick="closeEvidenceModal()">Close</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // --- Photographic Evidence Modal Handler ---
+    function openEvidenceModal(src, title) {
+        const modal = document.getElementById('evidenceModal');
+        const img = document.getElementById('modalEvidenceImg');
+        const titleEl = document.getElementById('modal-evidence-title');
+        if (modal && img && src) {
+            img.src = src;
+            if (titleEl && title) titleEl.textContent = title;
+            modal.style.display = 'flex';
+        }
+    }
+
+    function closeEvidenceModal() {
+        const modal = document.getElementById('evidenceModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeEvidenceModal();
+    });
+
+    // --- Resolve & Ignore Dismiss Handler ---
+    const breachCard = document.getElementById('featured-breach-card');
+    const clearedCard = document.getElementById('all-cleared-card');
+    const btnResolve = document.getElementById('btn-resolve-incident');
+    const btnIgnore = document.getElementById('btn-ignore-incident');
+    const btnReopen = document.getElementById('btn-reopen-featured');
+    let lastActiveIncidentId = {{ latest_active_violation.id if latest_active_violation else 1 }};
+
+    async function handleResolveAction(incidentId, isIgnore = false) {
+        lastActiveIncidentId = incidentId;
+        const url = isIgnore ? `/api/violations/ignore/${incidentId}` : `/api/violations/resolve/${incidentId}`;
+        
+        try {
+            await fetch(url, { method: 'POST' });
+        } catch (err) {
+            console.warn("Could not post resolve status:", err);
+        }
+
+        // Animate out the big breach box
+        if (breachCard) {
+            breachCard.style.opacity = '0';
+            breachCard.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                breachCard.classList.add('hidden');
+                if (clearedCard) {
+                    clearedCard.classList.remove('hidden');
+                    clearedCard.style.opacity = '1';
+                }
+            }, 250);
+        }
+
+        // Update table row if exists
+        const row = document.getElementById(`row-incident-${incidentId}`);
+        if (row) {
+            row.setAttribute('data-type', 'resolved');
+            row.setAttribute('data-resolved', isIgnore ? '2' : '1');
+            row.className = row.className.replace(/bg-rose-50\/40/g, isIgnore ? 'bg-slate-50/60' : 'bg-emerald-50/30');
+            
+            // Update classification badge cell
+            const classCell = row.children[3];
+            if (classCell) {
+                if (isIgnore) {
+                    classCell.innerHTML = `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded font-mono font-semibold text-[11px]"><span class="material-symbols-outlined text-[13px]">visibility_off</span> Dismissed</span>`;
+                } else {
+                    classCell.innerHTML = `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-bold font-mono text-[11px]"><span class="material-symbols-outlined text-[13px]">done_all</span> Resolved</span>`;
+                }
+            }
+
+            // Update action cell with reopen button
+            const actCell = row.children[7];
+            if (actCell) {
+                const btn = actCell.querySelector('button[onclick*="resolveRowIncident"]');
+                if (btn) {
+                    btn.outerHTML = `<button class="inline-flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 text-xs font-medium transition-colors cursor-pointer" type="button" onclick="reopenRowIncident(${incidentId})" title="Reopen alert"><span class="material-symbols-outlined text-xs">undo</span></button>`;
+                }
+            }
+        }
+
+        applyFilters();
+    }
+
+    if (btnResolve) {
+        btnResolve.addEventListener('click', () => {
+            const incId = btnResolve.getAttribute('data-incident-id') || lastActiveIncidentId;
+            handleResolveAction(incId, false);
+        });
+    }
+
+    if (btnIgnore) {
+        btnIgnore.addEventListener('click', () => {
+            const incId = btnIgnore.getAttribute('data-incident-id') || lastActiveIncidentId;
+            handleResolveAction(incId, true);
+        });
+    }
+
+    if (btnReopen) {
+        btnReopen.addEventListener('click', async () => {
+            try {
+                await fetch(`/api/violations/reopen/${lastActiveIncidentId}`, { method: 'POST' });
+            } catch (err) {
+                console.warn("Could not post reopen status:", err);
+            }
+
+            if (clearedCard) clearedCard.classList.add('hidden');
+            if (breachCard) {
+                breachCard.classList.remove('hidden');
+                setTimeout(() => {
+                    breachCard.style.opacity = '1';
+                    breachCard.style.transform = 'scale(1)';
+                }, 10);
+            }
+
+            const row = document.getElementById(`row-incident-${lastActiveIncidentId}`);
+            if (row) {
+                row.setAttribute('data-type', 'violation');
+                row.setAttribute('data-resolved', '0');
+                row.className = row.className.replace(/bg-emerald-50\/30|bg-slate-50\/60/g, 'bg-rose-50/40');
+                const classCell = row.children[3];
+                if (classCell) {
+                    classCell.innerHTML = `<span class="inline-flex items-center gap-1 bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded font-bold font-mono text-[11px]"><span class="material-symbols-outlined text-[13px]">close</span> No Mask</span>`;
+                }
+                const actCell = row.children[7];
+                if (actCell) {
+                    const btn = actCell.querySelector('button[onclick*="reopenRowIncident"]');
+                    if (btn) {
+                        btn.outerHTML = `<button class="inline-flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer" type="button" onclick="resolveRowIncident(${lastActiveIncidentId})" title="Mark as resolved"><span class="material-symbols-outlined text-xs">check</span></button>`;
+                    }
+                }
+            }
+
+            applyFilters();
+        });
+    }
+
+    // In-table quick resolve/reopen
+    window.resolveRowIncident = function(incId) {
+        handleResolveAction(incId, false);
+    };
+
+    window.reopenRowIncident = async function(incId) {
+        try {
+            await fetch(`/api/violations/reopen/${incId}`, { method: 'POST' });
+        } catch (err) {
+            console.warn("Could not reopen:", err);
+        }
+        const row = document.getElementById(`row-incident-${incId}`);
+        if (row) {
+            row.setAttribute('data-type', 'violation');
+            row.setAttribute('data-resolved', '0');
+            row.className = row.className.replace(/bg-emerald-50\/30|bg-slate-50\/60/g, 'bg-rose-50/40');
+            const classCell = row.children[3];
+            if (classCell) {
+                classCell.innerHTML = `<span class="inline-flex items-center gap-1 bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded font-bold font-mono text-[11px]"><span class="material-symbols-outlined text-[13px]">close</span> No Mask</span>`;
+            }
+            const actCell = row.children[7];
+            if (actCell) {
+                const btn = actCell.querySelector('button[onclick*="reopenRowIncident"]');
+                if (btn) {
+                    btn.outerHTML = `<button class="inline-flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer" type="button" onclick="resolveRowIncident(${incId})" title="Mark as resolved"><span class="material-symbols-outlined text-xs">check</span></button>`;
+                }
+            }
+        }
+        applyFilters();
+    };
+
+    // --- Toggle Advanced Attributes Drawer ---
+    const btnToggleAttributes = document.getElementById('btn-filter-attributes-toggle');
+    const attributesPanel = document.getElementById('advanced-attributes-panel');
+    if (btnToggleAttributes && attributesPanel) {
+        btnToggleAttributes.addEventListener('click', () => {
+            attributesPanel.classList.toggle('hidden');
+        });
+    }
+
+    const btnResetAttributes = document.getElementById('btn-reset-attributes');
+    if (btnResetAttributes) {
+        btnResetAttributes.addEventListener('click', () => {
+            document.getElementById('attr-camera-filter').value = 'ALL';
+            document.getElementById('attr-conf-filter').value = '0';
+            document.getElementById('attr-gate-filter').value = 'ALL';
+            applyFilters();
+        });
+    }
+
+    // --- Search & Filtering Engine ---
+    const searchInput = document.getElementById('search-input');
+    const btnFilterViolations = document.getElementById('btn-filter-violations');
+    const btnFilterAll = document.getElementById('btn-filter-all');
+    const btnFilterCompliant = document.getElementById('btn-filter-compliant');
+    const btnFilterResolved = document.getElementById('btn-filter-resolved');
+    const filterStatusLabel = document.getElementById('filter-status-label');
+    const totalCountBadge = document.getElementById('total-count-badge');
+    const paginationSummary = document.getElementById('pagination-summary');
+
+    let currentFilterType = 'violation'; // 'violation', 'all', 'compliant', 'resolved'
+
+    function applyFilters() {
+        const rows = document.querySelectorAll('.table-row-item');
+        const term = (searchInput ? searchInput.value : '').toLowerCase().trim();
+        const selCamera = document.getElementById('attr-camera-filter')?.value || 'ALL';
+        const minConf = parseFloat(document.getElementById('attr-conf-filter')?.value || '0');
+        const selGate = document.getElementById('attr-gate-filter')?.value || 'ALL';
+
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const rowType = row.getAttribute('data-type');
+            const searchData = (row.getAttribute('data-search') || '').toLowerCase();
+            const rowCamera = row.getAttribute('data-camera') || '';
+            const rowConf = parseFloat(row.getAttribute('data-confidence') || '0');
+            const rowGate = row.getAttribute('data-gate') || '';
+
+            const matchesSearch = !term || searchData.includes(term);
+            const matchesType = currentFilterType === 'all' || rowType === currentFilterType;
+            const matchesCamera = selCamera === 'ALL' || rowCamera.includes(selCamera);
+            const matchesConf = isNaN(minConf) || minConf === 0 || rowConf >= minConf;
+            const matchesGate = selGate === 'ALL' || rowGate === selGate;
+
+            if (matchesSearch && matchesType && matchesCamera && matchesConf && matchesGate) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (paginationSummary) {
+            paginationSummary.textContent = `Showing ${visibleCount} filtered incident records of ${rows.length} total events`;
+        }
+        if (totalCountBadge) {
+            totalCountBadge.textContent = `Total Logged: ${visibleCount} entries`;
+        }
+    }
+
+    function setActiveFilterBtn(activeBtn) {
+        [btnFilterViolations, btnFilterAll, btnFilterCompliant, btnFilterResolved].forEach(b => {
+            if (!b) return;
+            if (b === activeBtn) {
+                b.className = "px-2.5 py-1 rounded-md bg-slate-900 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1";
+            } else {
+                b.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-medium transition-colors cursor-pointer flex items-center gap-1";
+            }
+        });
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    document.getElementById('attr-camera-filter')?.addEventListener('change', applyFilters);
+    document.getElementById('attr-conf-filter')?.addEventListener('change', applyFilters);
+    document.getElementById('attr-gate-filter')?.addEventListener('change', applyFilters);
+
+    if (btnFilterViolations) {
+        btnFilterViolations.addEventListener('click', () => {
+            currentFilterType = 'violation';
+            setActiveFilterBtn(btnFilterViolations);
+            btnFilterViolations.className = "px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer";
+            if (filterStatusLabel) filterStatusLabel.textContent = "Filter Status: Showing active breach violations";
+            applyFilters();
+        });
+    }
+
+    if (btnFilterAll) {
+        btnFilterAll.addEventListener('click', () => {
+            currentFilterType = 'all';
+            setActiveFilterBtn(btnFilterAll);
+            if (filterStatusLabel) filterStatusLabel.textContent = "Filter Status: Showing all ingress records";
+            applyFilters();
+        });
+    }
+
+    if (btnFilterCompliant) {
+        btnFilterCompliant.addEventListener('click', () => {
+            currentFilterType = 'compliant';
+            setActiveFilterBtn(btnFilterCompliant);
+            btnFilterCompliant.className = "px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1";
+            if (filterStatusLabel) filterStatusLabel.textContent = "Filter Status: Showing compliant records only";
+            applyFilters();
+        });
+    }
+
+    if (btnFilterResolved) {
+        btnFilterResolved.addEventListener('click', () => {
+            currentFilterType = 'resolved';
+            setActiveFilterBtn(btnFilterResolved);
+            btnFilterResolved.className = "px-2.5 py-1 rounded-md bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-xs";
+            if (filterStatusLabel) filterStatusLabel.textContent = "Filter Status: Showing resolved & dismissed records";
+            applyFilters();
+        });
+    }
+
+    // --- Dynamic Real-Time Auto-Refresh (Every 10 Seconds) ---
+    async function refreshViolationsFeed() {
+        try {
+            const res = await fetch('/api/violations?limit=100');
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data.success || !data.incidents) return;
+
+            const tbody = document.getElementById('table-body');
+            if (!tbody || data.incidents.length === 0) return;
+
+            // Flash indicator
+            const ind = document.getElementById('auto-refresh-indicator');
+            if (ind) {
+                ind.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Synced Just Now';
+                setTimeout(() => {
+                    ind.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active (10s)';
+                }, 1800);
+            }
+
+            // Check if there is an active (unresolved) violation
+            const activeViolation = data.incidents.find(i => i.label !== 'Mask' && !i.resolved);
+            if (activeViolation && breachCard) {
+                // An active violation exists, display breach card
+                breachCard.classList.remove('hidden');
+                breachCard.style.opacity = '1';
+                if (clearedCard) clearedCard.classList.add('hidden');
+
+                const idEl = document.getElementById('featured-id-val');
+                const timeEl = document.getElementById('featured-timestamp');
+                const confEl = document.getElementById('featured-confidence');
+                const nodeEl = document.getElementById('featured-node');
+                const gateEl = document.getElementById('featured-gate');
+                const snEl = document.getElementById('featured-frame-sn');
+                const imgEl = document.getElementById('featured-evidence-img');
+
+                if (idEl) idEl.textContent = activeViolation.id;
+                if (timeEl) timeEl.textContent = `Logged: ${activeViolation.date} ${activeViolation.time} UTC`;
+                if (confEl) confEl.textContent = `${activeViolation.confidence}%`;
+                if (nodeEl) nodeEl.textContent = activeViolation.camera_id;
+                if (gateEl) {
+                    gateEl.innerHTML = `<span class="material-symbols-outlined text-sm text-rose-600">${activeViolation.gate_status === 'UNLOCKED' ? 'lock_open' : 'lock'}</span> ${activeViolation.gate_status}`;
+                }
+                if (snEl) snEl.textContent = activeViolation.id;
+                if (imgEl) {
+                    if (activeViolation.snapshot_path) imgEl.src = `/static/${activeViolation.snapshot_path}`;
+                    else if (activeViolation.face_crop_path) imgEl.src = `/static/${activeViolation.face_crop_path}`;
+                }
+                if (btnResolve) btnResolve.setAttribute('data-incident-id', activeViolation.id);
+                if (btnIgnore) btnIgnore.setAttribute('data-incident-id', activeViolation.id);
+            }
+
+            // Re-render table rows dynamically
+            let html = '';
+            data.incidents.forEach(inc => {
+                const isViolation = inc.label !== 'Mask';
+                const isResolved = inc.resolved === 1;
+                const isIgnored = inc.resolved === 2;
+                
+                let rowBg = 'hover:bg-slate-50 opacity-85';
+                let dotColor = 'bg-slate-400';
+                let textColor = 'text-slate-500';
+                let type = 'compliant';
+
+                if (isResolved) {
+                    rowBg = 'bg-emerald-50/30 hover:bg-emerald-50/60';
+                    dotColor = 'bg-emerald-500';
+                    textColor = 'text-emerald-700';
+                    type = 'resolved';
+                } else if (isIgnored) {
+                    rowBg = 'bg-slate-50/60 hover:bg-slate-100/80 opacity-75';
+                    dotColor = 'bg-slate-400';
+                    textColor = 'text-slate-600';
+                    type = 'resolved';
+                } else if (isViolation) {
+                    rowBg = 'bg-rose-50/40 hover:bg-rose-50/70';
+                    dotColor = 'bg-rose-600';
+                    textColor = 'text-rose-700';
+                    type = 'violation';
+                }
+
+                let badge = `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-semibold text-[11px]"><span class="material-symbols-outlined text-[13px]">check</span> Mask Verified</span>`;
+                if (isResolved) {
+                    badge = `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-bold font-mono text-[11px]"><span class="material-symbols-outlined text-[13px]">done_all</span> Resolved</span>`;
+                } else if (isIgnored) {
+                    badge = `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded font-mono font-semibold text-[11px]"><span class="material-symbols-outlined text-[13px]">visibility_off</span> Dismissed</span>`;
+                } else if (isViolation) {
+                    badge = `<span class="inline-flex items-center gap-1 bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded font-bold font-mono text-[11px]"><span class="material-symbols-outlined text-[13px]">close</span> No Mask</span>`;
+                }
+
+                const gateBadge = inc.gate_status === 'UNLOCKED' ?
+                    `<span class="inline-flex items-center gap-1 text-emerald-700 font-mono font-semibold text-[11px]"><span class="material-symbols-outlined text-xs">lock_open</span> UNLOCKED</span>` :
+                    `<span class="inline-flex items-center gap-1 bg-rose-100 text-rose-800 border border-rose-200 px-2.5 py-0.5 rounded font-mono font-bold text-[11px]"><span class="material-symbols-outlined text-xs">lock</span> LOCKED</span>`;
+
+                const imgThumb = inc.face_crop_path ? `/static/${inc.face_crop_path}` : (inc.snapshot_path ? `/static/${inc.snapshot_path}` : '');
+                const thumbHtml = imgThumb ?
+                    `<div class="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 border ${isViolation && !isResolved && !isIgnored ? 'border-rose-300 bg-rose-100' : (isResolved ? 'border-emerald-300 bg-emerald-100' : 'border-slate-200 bg-slate-50')} flex items-center justify-center shadow-xs cursor-pointer hover:scale-105 transition-transform" onclick="openEvidenceModal('${imgThumb}', 'Incident #${inc.id}')"><img alt="Snapshot" class="w-full h-full object-cover" src="${imgThumb}"/></div>` :
+                    `<div class="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-slate-100 flex items-center justify-center text-slate-400"><span class="material-symbols-outlined text-lg">person</span></div>`;
+
+                const photoBtn = inc.snapshot_path ?
+                    `<button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors text-xs font-semibold shadow-2xs cursor-pointer" type="button" onclick="openEvidenceModal('/static/${inc.snapshot_path}', 'Incident Evidence #${inc.id}')"><span class="material-symbols-outlined text-sm">photo_library</span> View Photo</button>` :
+                    `<button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium transition-colors cursor-pointer" type="button" onclick="openEvidenceModal('${imgThumb || ''}', 'Snapshot #${inc.id}')"><span class="material-symbols-outlined text-xs">visibility</span> Details</button>`;
+
+                const quickBtn = (isViolation && !isResolved && !isIgnored) ?
+                    `<button class="inline-flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer" type="button" onclick="resolveRowIncident(${inc.id})" title="Mark as resolved"><span class="material-symbols-outlined text-xs">check</span></button>` :
+                    ((isResolved || isIgnored) ? `<button class="inline-flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 text-xs font-medium transition-colors cursor-pointer" type="button" onclick="reopenRowIncident(${inc.id})" title="Reopen alert"><span class="material-symbols-outlined text-xs">undo</span></button>` : '');
+
+                const searchMeta = `#${String(inc.id).padStart(3, '0')} ${inc.label} ${inc.camera_id} ${inc.gate_status} ${inc.date} ${inc.time} ${isResolved ? 'resolved' : ''} ${isIgnored ? 'dismissed ignored' : ''}`;
+
+                html += `
+                    <tr class="table-row-item ${rowBg} transition-colors" id="row-incident-${inc.id}" data-incident-id="${inc.id}" data-type="${type}" data-resolved="${inc.resolved}" data-camera="${inc.camera_id}" data-confidence="${inc.confidence}" data-gate="${inc.gate_status}" data-search="${searchMeta}">
+                        <td class="py-3.5 px-4 font-mono font-bold ${textColor}">
+                            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${dotColor}"></span>#${String(inc.id).padStart(3, '0')}</div>
+                        </td>
+                        <td class="py-3.5 px-4">${thumbHtml}</td>
+                        <td class="py-3.5 px-4 font-mono text-slate-700 whitespace-nowrap"><div>${inc.date}</div><div class="text-[11px] text-slate-400">${inc.time} UTC</div></td>
+                        <td class="py-3.5 px-4">${badge}</td>
+                        <td class="py-3.5 px-4 font-mono">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                    <div class="h-full ${isViolation && !isResolved && !isIgnored ? 'bg-rose-600' : (isResolved ? 'bg-emerald-600' : 'bg-slate-400')} rounded-full" style="width: ${inc.confidence}%"></div>
+                                </div>
+                                <span class="font-bold ${isViolation && !isResolved && !isIgnored ? 'text-rose-700' : (isResolved ? 'text-emerald-700' : 'text-slate-600')}">${inc.confidence}%</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4 font-mono text-slate-800 font-medium">
+                            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">${inc.camera_id}</span>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Sector-A Turnstile</div>
+                        </td>
+                        <td class="py-3.5 px-4">${gateBadge}</td>
+                        <td class="py-3.5 px-4 text-right">
+                            <div class="inline-flex items-center justify-end gap-1.5">
+                                ${photoBtn}
+                                ${quickBtn}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            applyFilters();
+        } catch (err) {
+            console.error("Auto-refresh error:", err);
+        }
+    }
+
+    // Auto-refresh interval (10 seconds)
+    setInterval(refreshViolationsFeed, 10000);
+
+    // Initial filter run
+    applyFilters();
+</script>
+{% endblock %}

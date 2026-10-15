@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="web_standard" name="shell-type"/>
+    <title>MaskGuard AI — Facility Gate Interlock &amp; Surveillance</title>
+
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>    <!-- Google Fonts: Plus Jakarta Sans, Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+    <style>
+        @layer base {
+            html, body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+            body { overscroll-behavior: none; }
+            main > :first-child { margin-top: 0 !important; }
+            main > :last-child { margin-bottom: 0 !important; }
+        }
+        ::-webkit-scrollbar { display: none; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#faf8ff",
+                        "on-surface-variant": "#3c4a42",
+                        "surface-container-high": "#e2e7ff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "tertiary-container": "#ff7a73",
+                        "on-primary-fixed-variant": "#005236",
+                        "background": "#f8fafc",
+                        "error-container": "#fef2f2",
+                        "surface-container-highest": "#dae2fd",
+                        "secondary": "#0051d5",
+                        "on-error-container": "#93000a",
+                        "outline": "#6c7a71",
+                        "on-tertiary-container": "#79000e",
+                        "outline-variant": "#e2e8f0",
+                        "primary-container": "#10b981",
+                        "on-primary-fixed": "#002113",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#6ffbbe",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-dim": "#d2d9f4",
+                        "surface-tint": "#006c49",
+                        "secondary-container": "#316bf3",
+                        "surface-container-low": "#f8fafc",
+                        "on-secondary-container": "#fefcff",
+                        "surface-container": "#f1f5f9",
+                        "inverse-primary": "#4edea3",
+                        "on-surface": "#0f172a",
+                        "primary": "#059669",
+                        "inverse-on-surface": "#eef0ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#dae2fd",
+                        "inverse-surface": "#1e293b",
+                        "tertiary": "#dc2626",
+                        "on-background": "#0f172a",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-primary-container": "#00422b",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#930013",
+                        "primary-fixed-dim": "#4edea3",
+                        "on-tertiary-fixed": "#410004",
+                        "tertiary-fixed": "#ffdad7",
+                        "surface": "#ffffff",
+                        "on-tertiary": "#ffffff"
+                    },
+                    fontFamily: {
+                        sans: ["'Plus Jakarta Sans'", "Inter", "sans-serif"],
+                        mono: ["'JetBrains Mono'", "monospace"]
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-background font-sans text-on-surface antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+        <div class="max-w-7xl mx-auto h-16 px-6 lg:px-8 flex items-center justify-between">
+            
+            <!-- Brand Logo -->
+            <a href="/" class="flex items-center gap-3 shrink-0 group">
+                <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+                </div>
+                <div class="flex flex-col">
+                    <div class="text-[17px] font-bold tracking-tight text-slate-900 leading-none">
+                        MaskGuard<span class="text-emerald-600">.AI</span>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-400 font-medium uppercase tracking-wider mt-0.5">Gate Interlock</span>
+                </div>
+            </a>
+
+            <!-- Clean, Spacious Navigation Links with Breathing Space -->
+            <nav class="hidden md:flex items-center gap-2 lg:gap-3">
+                <a href="/" class="px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/80 shadow-2xs transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">videocam</span>
+                    Live
+                </a>
+                <a href="/violations" class="px-4 py-2 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">history</span>
+                    Logs
+                </a>
+                <a href="/analytics" class="px-4 py-2 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">insights</span>
+                    Analytics
+                </a>
+                <a href="/scanner" class="px-4 py-2 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">image_search</span>
+                    Scanner
+                </a>
+                <a href="/diagnostics" class="px-4 py-2 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">psychology</span>
+                    Model
+                </a>
+            </nav>
+
+            <!-- Refined Dr. Evelyn Vance Security Profile Chip -->
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="flex items-center gap-3 pl-1.5 pr-3.5 py-1.5 bg-slate-50 hover:bg-slate-100/90 border border-slate-200/80 rounded-full transition-all shadow-2xs">
+                    <div class="relative">
+                        <img alt="Dr. Evelyn Vance" class="w-8 h-8 rounded-full object-cover ring-2 ring-emerald-500/30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY7S9Q3GHRSl9PAzXBYpknhjQE5X6iASsNScXRqtNiqN6ylueoI9VQnfSQnl__vVc1-QMu3EoOmEbUDLm23OYCJjR0hracA2MGl3ojKNJzSHB08pkiTfFIDqPeD_c5DlBb93ZqaaHS15Riy-HBH4Lsib59DYUDOHKMhYm3RMbYX5xC8Fi2Z9nwRjpFdWF7nY18j32TKbhrqG_lZhbitr0ojXFD57Q12UQjwm5wKcE5fs1Xp6HyS6ksfA"/>
+                        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+                    </div>
+                    <div class="flex flex-col text-left">
+                        <span class="text-xs font-bold text-slate-900 leading-tight">Dr. Evelyn Vance</span>
+                        <span class="text-[10px] font-mono font-medium text-emerald-700 uppercase tracking-wider">Security Lead</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <main class="w-full pt-16 bg-background flex-1 flex flex-col">
+        <div class="flex flex-col w-full max-w-7xl mx-auto px-6 lg:px-8 py-6 gap-6">
+
+            <!-- Top Title & Shift Summary Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-2">
+                        <span class="font-mono text-xs font-semibold uppercase tracking-wider text-primary">Sector-A Entrance</span>
+                        <span class="text-slate-300">•</span>
+                        <span class="font-mono text-xs text-slate-500">Node: Edge-TX2</span>
+                        <span class="text-slate-300">•</span>
+                        <span class="font-mono text-xs text-slate-500" id="header-time-pill">21:49:04 UTC</span>
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Facility Gate Interlock &amp; Surveillance</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="/api/violations/export" class="px-3.5 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition-all text-xs font-medium flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base text-slate-500">download</span>
+                        Export Report
+                    </a>
+                    <button id="btn-open-settings" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer" type="button">
+                        <span class="material-symbols-outlined text-base">tune</span>
+                        Sensitivity Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- 1. TOP KPI METRICS ROW (SLEEK, COMPACT) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <!-- KPI 1: Total Scanned -->
+                <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Scanned</span>
+                        <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[16px]">sensors</span>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline justify-between mt-1">
+                        <span class="text-xl font-bold font-mono tracking-tight text-slate-900" id="metric-scanned-val">{{ stats.total_scans }}</span>
+                        <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-mono" id="metric-scanned-delta">+{{ stats.total_scans }} today</span>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Compliant (Mask) -->
+                <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Compliant</span>
+                        <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline justify-between mt-1">
+                        <span class="text-xl font-bold font-mono tracking-tight text-emerald-600" id="metric-compliant-val">{{ stats.total_mask }}</span>
+                        <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-mono" id="metric-compliant-ratio">{{ stats.compliance_rate }}% total</span>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Violations -->
+                <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Violations</span>
+                        <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[16px]">gpp_bad</span>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline justify-between mt-1">
+                        <span class="text-xl font-bold font-mono tracking-tight text-rose-600" id="metric-violations-val">{% if stats.total_no_mask < 10 %}0{{ stats.total_no_mask }}{% else %}{{ stats.total_no_mask }}{% endif %}</span>
+                        <span class="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full font-mono" id="metric-violations-status">{% if stats.total_no_mask > 0 %}Review Needed{% else %}All Compliant{% endif %}</span>
+                    </div>
+                </div>
+
+                <!-- KPI 4: Compliance Rate -->
+                <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Compliance Rate</span>
+                        <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center font-mono font-bold text-[11px]">
+                            %
+                        </span>
+                    </div>
+                    <div class="flex items-baseline justify-between mt-1">
+                        <span class="text-xl font-bold font-mono tracking-tight text-slate-900" id="metric-rate-val">{{ stats.compliance_rate }}%</span>
+                        <span class="text-[10px] font-semibold text-emerald-700 font-mono">Target &gt;95%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. MAIN WORKSPACE (2 COLUMNS: STREAM + GATE INTERLOCK & AUDIT) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                <!-- ================= LEFT PANEL (7 COLS): LIVE VIDEO MONITOR ================= -->
+                <div class="lg:col-span-7 flex flex-col gap-4">
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+                        <!-- Video Header -->
+                        <div class="p-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="relative flex h-2.5 w-2.5">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
+                                    </span>
+                                    <h2 class="text-base font-bold text-slate-900" id="camera-heading">CAM-01: Main Facility Entrance</h2>
+                                </div>
+                                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200/70 font-mono text-[11px] font-semibold px-2 py-0.5 rounded-full" id="live-indicator-pill">LIVE</span>
+                            </div>
+                            <!-- Camera Switcher Tabs -->
+                            <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/60">
+                                <button class="px-3 py-1 rounded-md bg-white text-slate-900 text-xs font-semibold shadow-xs transition-all" id="tab-cam-entrance" type="button">Entrance</button>
+                                <button class="px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 text-xs font-medium transition-all" id="tab-cam-turnstile" type="button">Turnstile A</button>
+                            </div>
+                        </div>
+
+                        <!-- Fallback Prompt Banner if server camera is unavailable -->
+                        <div id="laptop-cam-banner" class="p-3 bg-amber-50 border-b border-amber-200 flex items-center justify-between gap-3" style="display: none;">
+                            <div class="flex items-center gap-2 text-xs text-amber-800">
+                                <span class="material-symbols-outlined text-base text-amber-600">videocam_off</span>
+                                <span>No server USB camera found. Switch to laptop camera for live demonstration?</span>
+                            </div>
+                            <button id="btn-enable-laptop-now" class="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-semibold shadow-xs transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">photo_camera</span>
+                                Use Laptop Camera
+                            </button>
+                        </div>
+
+                        <!-- Clean Video Viewport -->
+                        <div class="relative w-full aspect-video bg-slate-950 overflow-hidden select-none" id="viewport-box">
+                            <!-- Real-time Video Stream Image -->
+                            <img id="surveillance-stream" class="w-full h-full object-cover" alt="Facility Ingress Camera" src="/video_feed"/>
+
+                            <!-- Hidden HTML5 Elements for Laptop Client Webcam -->
+                            <video id="clientVideo" autoplay playsinline muted style="display: none;"></video>
+                            <canvas id="clientCanvas" style="display: none;"></canvas>
+
+                            <!-- Subtle Top Timestamp -->
+                            <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded-md text-slate-200 font-mono text-xs flex items-center gap-2 z-20">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span id="rec-timestamp">REC 21:49:04 UTC</span>
+                            </div>
+
+                            <!-- Refined Bounding Box HUD Overlay -->
+                            <div class="absolute top-[22%] left-[41%] w-[26%] h-[48%] pointer-events-none z-10" id="hud-box" style="display: none;">
+                                <div class="w-full h-full border-2 border-emerald-400 rounded-sm bg-emerald-500/10 relative">
+                                    <div class="absolute -top-6 left-0 bg-emerald-600 text-white font-mono text-[11px] font-semibold px-2 py-0.5 rounded shadow-sm whitespace-nowrap" id="hud-label">
+                                        Mask Detected (99.4%) • Employee
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bottom overlay: simple control bar -->
+                            <div class="absolute bottom-3 right-3 flex items-center gap-1.5 pointer-events-auto z-20">
+                                <button class="p-1.5 bg-slate-900/80 hover:bg-slate-900 text-slate-200 rounded-md backdrop-blur-md transition-colors" title="Zoom" type="button" id="btn-zoom">
+                                    <span class="material-symbols-outlined text-sm">zoom_in</span>
+                                </button>
+                                <button class="p-1.5 bg-slate-900/80 hover:bg-slate-900 text-slate-200 rounded-md backdrop-blur-md transition-colors" title="Fullscreen" type="button" id="btn-fullscreen">
+                                    <span class="material-symbols-outlined text-sm">fullscreen</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Simplified Video Action Bar -->
+                        <div class="p-4 flex flex-wrap items-center justify-between gap-4 bg-white">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500" id="inference-dot"></div>
+                                <span class="text-xs font-medium text-slate-700">TensorFlow Detection: <strong class="text-slate-900 font-semibold" id="inference-text">Optimal (14ms inference • 30 FPS)</strong></span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <!-- Auto-Record Toggle Switch -->
+                                <div aria-checked="true" class="flex items-center gap-2 cursor-pointer select-none" id="toggle-autorecord" role="switch">
+                                    <span class="text-xs font-semibold text-slate-700">Auto-Capture</span>
+                                    <div class="w-8 h-4.5 bg-emerald-600 rounded-full relative p-0.5 transition-colors" id="autorecord-track">
+                                        <div class="w-3.5 h-3.5 bg-white rounded-full shadow-sm transform translate-x-3.5 transition-transform" id="autorecord-thumb"></div>
+                                    </div>
+                                </div>
+                                <button class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5" id="btn-manual-snap" type="button">
+                                    <span class="material-symbols-outlined text-sm text-slate-600">photo_camera</span>
+                                    Capture Snapshot
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= RIGHT PANEL (5 COLS): ACCESS CONTROL & AUDIT LOGS ================= -->
+                <div class="lg:col-span-5 flex flex-col gap-4">
+                    <!-- ACCESS CONTROL GATE & VIRTUAL RELAY -->
+                    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Access Control Interlock</span>
+                                <h2 class="text-base font-bold text-slate-900">Virtual Relay Status</h2>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400 text-xl">meeting_room</span>
+                        </div>
+
+                        <!-- Clean State Card -->
+                        <div class="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-4 flex flex-col gap-3 transition-all duration-300" id="gate-status-card">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-xs" id="gate-icon-container">
+                                        <span class="material-symbols-outlined text-xl" id="gate-status-icon">lock_open</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[11px] uppercase tracking-wider text-emerald-800 font-semibold block" id="gate-type-sub">Turnstile Ingress</span>
+                                        <span class="text-lg font-bold text-emerald-950 tracking-tight" id="gate-status-text">Access Granted</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] uppercase font-semibold text-emerald-800/80 block">Locking In</span>
+                                    <span class="text-lg font-mono font-bold text-emerald-700" id="gate-countdown-timer">04s</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/90 rounded-lg px-3 py-2 flex items-center justify-between border border-emerald-100" id="solenoid-box">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" id="solenoid-pulse"></span>
+                                    <span class="font-mono text-xs font-semibold text-slate-800" id="solenoid-status-text">Solenoid: UNLOCKED</span>
+                                </div>
+                                <span class="text-[11px] font-mono text-emerald-700 font-semibold" id="solenoid-badge">COIL ACTIVE</span>
+                            </div>
+                        </div>
+
+                        <!-- Distinct Action Buttons -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="px-3 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors" id="btn-manual-override" type="button">
+                                <span class="material-symbols-outlined text-base text-slate-600">lock_open</span>
+                                Grant Access
+                            </button>
+                            <button class="px-3 py-2.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors" id="btn-emergency-lock" type="button">
+                                <span class="material-symbols-outlined text-base">emergency_home</span>
+                                Emergency Lock
+                            </button>
+                        </div>
+
+                        <!-- Minimal Technical Line -->
+                        <div class="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-100">
+                            <span class="font-mono" id="relay-channel-text">GPIO-18: Armed (12V)</span>
+                            <span class="font-mono">Response: 8.0ms</span>
+                        </div>
+                    </div>
+
+                    <!-- RECENT AUDIT LOGS -->
+                    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Security Events</span>
+                                <h3 class="text-base font-bold text-slate-900">Recent Audit Logs</h3>
+                            </div>
+                            <a class="text-xs text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-0.5" href="/violations">
+                                View All
+                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </a>
+                        </div>
+
+                        <!-- Streamlined Events List -->
+                        <div class="flex flex-col divide-y divide-slate-100" id="audit-logs-list">
+                            {% if incidents %}
+                                {% for inc in incidents %}
+                                <div class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border {% if inc.label == 'Mask' %}border-emerald-200 bg-emerald-50{% else %}border-rose-200 bg-rose-50{% endif %} flex items-center justify-center">
+                                            {% if inc.face_crop_path %}
+                                                <img class="w-full h-full object-cover" data-alt="Face Crop" src="/static/{{ inc.face_crop_path }}"/>
+                                            {% else %}
+                                                <span class="material-symbols-outlined {% if inc.label == 'Mask' %}text-emerald-600{% else %}text-rose-600{% endif %} text-lg">person</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex flex-col min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs font-bold {% if inc.label == 'Mask' %}text-slate-800{% else %}text-rose-700{% endif %} truncate">
+                                                    {% if inc.label == 'Mask' %}Mask Verified{% else %}No Mask{% endif %} ({{ inc.confidence }}%)
+                                                </span>
+                                                <span class="{% if inc.gate_status == 'UNLOCKED' %}bg-emerald-100 text-emerald-800{% else %}bg-rose-100 text-rose-800{% endif %} text-[10px] font-bold px-1.5 py-0.2 rounded font-mono">
+                                                    {% if inc.gate_status == 'UNLOCKED' %}PASSED{% else %}LOCKED{% endif %}
+                                                </span>
+                                            </div>
+                                            <span class="text-[11px] text-slate-500">{{ inc.camera_id }} • #SN-{{ inc.id }} verified</span>
+                                        </div>
+                                    </div>
+                                    <span class="font-mono text-xs text-slate-400 shrink-0">{{ inc.time }}</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Clean Fallback Events if Database is Fresh -->
+                                <div class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-emerald-200 bg-emerald-50 flex items-center justify-center">
+                                            <img class="w-full h-full object-cover" data-alt="Person with mask" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyOBdGwfYY0kcw0ixUV6TvVmJAy3Ob5SpaZwtpk1O-NLIPl1Epqly6uVzUDKmnI5RQ57VL9GMkvI7OfGUm3wfz6eBX9WC-AINxBDDCyfHmj1GZjkSqJubFp1IKgsBSgtDrFUKO5gyAN-qfJSrWmlj4aXXyde4IkDNyq0P3JCb00HgknXK_jRuXbwKClGoKhIyI2uUeluQuO7rTgWR8_dACGlUU2Md7K-lOaMflYaI3AGcOJziFUU1CZg"/>
+                                        </div>
+                                        <div class="flex flex-col min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs font-bold text-slate-800 truncate">Mask Verified (99.2%)</span>
+                                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded font-mono">PASSED</span>
+                                            </div>
+                                            <span class="text-[11px] text-slate-500">Emp ID: #8821 verified</span>
+                                        </div>
+                                    </div>
+                                    <span class="font-mono text-xs text-slate-400 shrink-0">21:47:12</span>
+                                </div>
+
+                                <div class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-emerald-200 bg-emerald-50 flex items-center justify-center">
+                                            <img class="w-full h-full object-cover" data-alt="Visitor with mask" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfuDwd6v0qmdY3-GVnlU1kk-UVu8lSGYwWmwaalIfTpnku1ReDMVKfVpepN7xnPBm1sZVOXT_ItU5La-M8drjc8g5DwguIOG6Pqc9Qn80MPuKlXZtsSENn45fmbRp9Ha93fVTKhUDdJpIbJcb0iPqKeUERZXfsCNcmHVBlYLgo5IfaQ-Q97ehDr_g0mzFEWwYcrecFVx7tCzCWSrf90bitr7cPm1ztCDy5VZ3-q0aEWFC5ImpdB6_5eg"/>
+                                        </div>
+                                        <div class="flex flex-col min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs font-bold text-slate-800 truncate">Mask Verified (98.7%)</span>
+                                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded font-mono">PASSED</span>
+                                            </div>
+                                            <span class="text-[11px] text-slate-500">Visitor Pass: #VIS-301</span>
+                                        </div>
+                                    </div>
+                                    <span class="font-mono text-xs text-slate-400 shrink-0">21:44:30</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Sensitivity Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all" style="display: none;" onclick="closeSettingsModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200" onclick="event.stopPropagation()">
+            
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/60">
+                        <span class="material-symbols-outlined text-lg">tune</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">AI Sensitivity &amp; Gate Controls</h3>
+                        <p class="text-[11px] text-slate-500">Configure real-time edge detection hyperparameters</p>
+                    </div>
+                </div>
+                <button class="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors" onclick="closeSettingsModal()" type="button">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-5 flex flex-col gap-5 text-xs">
+                
+                <!-- 1. Confidence Threshold Slider -->
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-slate-800 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm text-slate-500">verified</span>
+                            Mask Classification Sensitivity
+                        </span>
+                        <span class="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px]" id="label-conf-slider">50%</span>
+                    </div>
+                    <input type="range" id="input-conf-slider" min="30" max="95" value="50" step="5" class="w-full accent-emerald-600 cursor-pointer">
+                    <span class="text-[10px] text-slate-400">Higher values require stronger visual evidence of a mask before granting access.</span>
+                </div>
+
+                <!-- 2. Temporal Smoothing Persistence -->
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-slate-800 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm text-slate-500">filter_list</span>
+                            Temporal Smoothing Buffer
+                        </span>
+                        <span class="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded text-[11px]" id="label-persist-slider">5 Frames</span>
+                    </div>
+                    <input type="range" id="input-persist-slider" min="1" max="10" value="5" step="1" class="w-full accent-emerald-600 cursor-pointer">
+                    <span class="text-[10px] text-slate-400">Consecutive video frames required before triggering gate lock state (eliminates flicker).</span>
+                </div>
+
+                <!-- 3. Lock Delay Notification -->
+                <div class="p-3 bg-slate-50 border border-slate-200/70 rounded-xl flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-slate-800">Auto-Relock Delay</span>
+                        <span class="text-[10px] text-slate-500">Virtual Solenoid arming window</span>
+                    </div>
+                    <span class="font-mono font-bold text-slate-700 text-xs bg-white px-2.5 py-1 rounded-md border border-slate-200">4.0s</span>
+                </div>
+
+                <!-- Save Feedback Alert -->
+                <div id="settings-save-alert" class="p-2.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs flex items-center gap-2" style="display: none;">
+                    <span class="material-symbols-outlined text-sm text-emerald-600">check_circle</span>
+                    <span>Settings applied! Model hyperparameters updated live.</span>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                <button class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-slate-800 hover:bg-slate-200/60 text-xs font-semibold transition-colors" onclick="closeSettingsModal()" type="button">
+                    Cancel
+                </button>
+                <button id="btn-save-settings" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5" type="button">
+                    <span class="material-symbols-outlined text-sm">save</span>
+                    Apply Settings
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full bg-white border-t border-slate-200 mt-auto py-4 px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <div>MaskGuard AI • Biometric Ingress &amp; IoT Barrier System</div>
+            <div class="flex items-center gap-4">
+                <span class="font-mono">TensorFlow Edge</span>
+                <span class="font-mono">OpenCV 4.10</span>
+                <span class="text-emerald-700 font-medium flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Virtual Solenoid Ready
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Client-side Interactive Simulation & Backend Sync Logic -->
+    <script>
+        (function initMaskGuardDashboard() {
+            let countdown = 4;
+            let gateTimerInterval = null;
+            let isGateUnlocked = true;
+            let currentCameraMode = "server"; // "server" or "laptop"
+            let laptopStream = null;
+            let laptopProcessInterval = null;
+            let isProcessingLaptopFrame = false;
+            let soundEnabled = true;
+
+            const countdownEl = document.getElementById('gate-countdown-timer');
+            const gateCard = document.getElementById('gate-status-card');
+            const gateText = document.getElementById('gate-status-text');
+            const gateIcon = document.getElementById('gate-status-icon');
+            const gateIconContainer = document.getElementById('gate-icon-container');
+            const solenoidText = document.getElementById('solenoid-status-text');
+            const solenoidPulse = document.getElementById('solenoid-pulse');
+            const solenoidBox = document.getElementById('solenoid-box');
+            const solenoidBadge = document.getElementById('solenoid-badge');
+            const gateTypeSub = document.getElementById('gate-type-sub');
+
+            const displayImg = document.getElementById('surveillance-stream');
+            const clientVideo = document.getElementById('clientVideo');
+            const clientCanvas = document.getElementById('clientCanvas');
+            const tabEntrance = document.getElementById('tab-cam-entrance');
+            const tabTurnstile = document.getElementById('tab-cam-turnstile');
+            const cameraHeading = document.getElementById('camera-heading');
+            const laptopBanner = document.getElementById('laptop-cam-banner');
+            const btnEnableLaptopNow = document.getElementById('btn-enable-laptop-now');
+            const recTimestamp = document.getElementById('rec-timestamp');
+            const headerTimePill = document.getElementById('header-time-pill');
+            const inferenceText = document.getElementById('inference-text');
+
+            // UTC Clock updater
+            function updateClock() {
+                const now = new Date();
+                const timeStr = now.toISOString().substring(11, 19) + " UTC";
+                if (recTimestamp) recTimestamp.textContent = "REC " + timeStr;
+                if (headerTimePill) headerTimePill.textContent = timeStr;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            // Audio Alert Synthesizer
+            function triggerAudioBuzzer() {
+                if (!soundEnabled) return;
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(880, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.22);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.22);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.22);
+                } catch (e) {
+                    console.warn("Audio Context error:", e);
+                }
+            }
+
+            const soundToggleBtn = document.getElementById('sound-toggle-btn');
+            const soundIcon = document.getElementById('sound-icon');
+            const soundBadge = document.getElementById('sound-badge');
+            if (soundToggleBtn) {
+                soundToggleBtn.addEventListener('click', () => {
+                    soundEnabled = !soundEnabled;
+                    if (soundBadge) soundBadge.style.display = soundEnabled ? 'block' : 'none';
+                    if (soundIcon) soundIcon.textContent = soundEnabled ? 'notifications' : 'notifications_off';
+                });
+            }
+
+            function startCountdown() {
+                clearInterval(gateTimerInterval);
+                countdown = 4;
+                countdownEl.textContent = '0' + countdown + 's';
+
+                gateTimerInterval = setInterval(() => {
+                    countdown--;
+                    if (countdown >= 0) {
+                        countdownEl.textContent = '0' + countdown + 's';
+                    }
+                    if (countdown === 0) {
+                        lockGate();
+                    }
+                }, 1000);
+            }
+
+            function lockGate() {
+                isGateUnlocked = false;
+                clearInterval(gateTimerInterval);
+                countdownEl.textContent = '00s';
+                
+                gateCard.className = "bg-slate-100 border border-slate-200 rounded-xl p-4 flex flex-col gap-3 transition-all duration-300";
+                gateIconContainer.className = "w-10 h-10 rounded-lg bg-slate-500 flex items-center justify-center text-white shadow-xs";
+                gateIcon.textContent = "lock";
+                gateText.textContent = "Barrier Armed";
+                gateText.className = "text-lg font-bold text-slate-900 tracking-tight";
+                gateTypeSub.className = "text-[11px] uppercase tracking-wider text-slate-600 font-semibold block";
+                solenoidText.textContent = "Solenoid: LOCKED";
+                solenoidPulse.className = "w-2 h-2 rounded-full bg-slate-400";
+                solenoidBox.className = "bg-white/90 rounded-lg px-3 py-2 flex items-center justify-between border border-slate-200";
+                solenoidBadge.textContent = "STANDBY";
+                solenoidBadge.className = "text-[11px] font-mono text-slate-500 font-semibold";
+            }
+
+            function unlockGate() {
+                isGateUnlocked = true;
+                gateCard.className = "bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-4 flex flex-col gap-3 transition-all duration-300";
+                gateIconContainer.className = "w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-xs";
+                gateIcon.textContent = "lock_open";
+                gateText.textContent = "Access Granted";
+                gateText.className = "text-lg font-bold text-emerald-950 tracking-tight";
+                gateTypeSub.className = "text-[11px] uppercase tracking-wider text-emerald-800 font-semibold block";
+                solenoidText.textContent = "Solenoid: UNLOCKED";
+                solenoidPulse.className = "w-2 h-2 rounded-full bg-emerald-600 animate-pulse";
+                solenoidBox.className = "bg-white/90 rounded-lg px-3 py-2 flex items-center justify-between border border-emerald-100";
+                solenoidBadge.textContent = "COIL ACTIVE";
+                solenoidBadge.className = "text-[11px] font-mono text-emerald-700 font-semibold";
+                startCountdown();
+            }
+
+            startCountdown();
+
+            const btnManualOverride = document.getElementById('btn-manual-override');
+            if (btnManualOverride) {
+                btnManualOverride.addEventListener('click', async () => {
+                    unlockGate();
+                    try {
+                        await fetch('/api/gate/toggle', { method: 'POST' });
+                    } catch (e) {
+                        console.warn("Override error:", e);
+                    }
+                });
+            }
+
+            const btnEmergencyLock = document.getElementById('btn-emergency-lock');
+            if (btnEmergencyLock) {
+                btnEmergencyLock.addEventListener('click', async () => {
+                    clearInterval(gateTimerInterval);
+                    isGateUnlocked = false;
+                    countdownEl.textContent = '--';
+                    gateCard.className = "bg-rose-50 border border-rose-200 rounded-xl p-4 flex flex-col gap-3 transition-all duration-300";
+                    gateIconContainer.className = "w-10 h-10 rounded-lg bg-rose-600 flex items-center justify-center text-white shadow-xs";
+                    gateIcon.textContent = "shield_lock";
+                    gateText.textContent = "Emergency Lockdown";
+                    gateText.className = "text-lg font-bold text-rose-800 tracking-tight";
+                    gateTypeSub.className = "text-[11px] uppercase tracking-wider text-rose-800 font-semibold block";
+                    solenoidText.textContent = "Solenoid: FORCE ENGAGED";
+                    solenoidPulse.className = "w-2 h-2 rounded-full bg-rose-600 animate-ping";
+                    solenoidBox.className = "bg-white/90 rounded-lg px-3 py-2 flex items-center justify-between border border-rose-200";
+                    solenoidBadge.textContent = "FORCE ENGAGED";
+                    solenoidBadge.className = "text-[11px] font-mono text-rose-700 font-semibold";
+
+                    try {
+                        await fetch('/api/gate/toggle', { method: 'POST' });
+                    } catch (e) {
+                        console.warn("Emergency error:", e);
+                    }
+                });
+            }
+
+            const toggleAutoRecord = document.getElementById('toggle-autorecord');
+            const autoRecordTrack = document.getElementById('autorecord-track');
+            const autoRecordThumb = document.getElementById('autorecord-thumb');
+            let autoRecordActive = true;
+
+            if (toggleAutoRecord) {
+                toggleAutoRecord.addEventListener('click', () => {
+                    autoRecordActive = !autoRecordActive;
+                    if (autoRecordActive) {
+                        autoRecordTrack.className = "w-8 h-4.5 bg-emerald-600 rounded-full relative p-0.5 transition-colors";
+                        autoRecordThumb.className = "w-3.5 h-3.5 bg-white rounded-full shadow-sm transform translate-x-3.5 transition-transform";
+                    } else {
+                        autoRecordTrack.className = "w-8 h-4.5 bg-slate-300 rounded-full relative p-0.5 transition-colors";
+                        autoRecordThumb.className = "w-3.5 h-3.5 bg-white rounded-full shadow-sm transform translate-x-0 transition-transform";
+                    }
+                });
+            }
+
+            // Camera Switching: Server Camera (Entrance) vs Laptop Webcam (Turnstile A)
+            async function checkCameraStatus() {
+                try {
+                    const res = await fetch('/api/camera_status');
+                    const data = await res.json();
+                    if (!data.has_real_feed && currentCameraMode === "server") {
+                        laptopBanner.style.display = "flex";
+                    } else {
+                        laptopBanner.style.display = "none";
+                    }
+                } catch (e) {
+                    console.warn("Could not check camera status:", e);
+                }
+            }
+
+            async function startLaptopCamera() {
+                try {
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        alert("Your browser does not support webcam access.");
+                        return;
+                    }
+
+                    laptopBanner.style.display = "none";
+                    currentCameraMode = "laptop";
+                    tabTurnstile.className = "px-3 py-1 rounded-md bg-white text-slate-900 text-xs font-semibold shadow-xs transition-all";
+                    tabEntrance.className = "px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 text-xs font-medium transition-all";
+                    cameraHeading.textContent = "CAM-02: Turnstile A (Laptop Webcam)";
+
+                    laptopStream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
+                        audio: false
+                    });
+
+                    clientVideo.srcObject = laptopStream;
+                    await clientVideo.play();
+
+                    clientCanvas.width = 640;
+                    clientCanvas.height = 480;
+
+                    if (laptopProcessInterval) clearInterval(laptopProcessInterval);
+                    laptopProcessInterval = setInterval(sendLaptopFrameToAI, 100);
+                } catch (err) {
+                    console.error("Camera access denied or error:", err);
+                    alert("Could not access laptop camera: " + err.message);
+                    switchToSeverCamera();
+                }
+            }
+
+            async function sendLaptopFrameToAI() {
+                if (isProcessingLaptopFrame || clientVideo.paused || clientVideo.ended) return;
+                isProcessingLaptopFrame = true;
+
+                const ctx = clientCanvas.getContext('2d');
+                ctx.save();
+                ctx.scale(-1, 1);
+                ctx.drawImage(clientVideo, -clientCanvas.width, 0, clientCanvas.width, clientCanvas.height);
+                ctx.restore();
+
+                const base64Data = clientCanvas.toDataURL('image/jpeg', 0.7);
+
+                try {
+                    const res = await fetch('/api/process_client_frame', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: base64Data })
+                    });
+
+                    if (res.ok) {
+                        const result = await res.json();
+                        if (result.annotated_image) {
+                            displayImg.src = result.annotated_image;
+                        }
+
+                        if (result.gate_status === "UNLOCKED") {
+                            if (!isGateUnlocked) unlockGate();
+                        } else {
+                            if (isGateUnlocked) lockGate();
+                        }
+
+                        if (result.alert_triggered) {
+                            triggerAudioBuzzer();
+                        }
+                    }
+                } catch (err) {
+                    console.error("Frame processing error:", err);
+                } finally {
+                    isProcessingLaptopFrame = false;
+                }
+            }
+
+            function switchToSeverCamera() {
+                currentCameraMode = "server";
+                tabEntrance.className = "px-3 py-1 rounded-md bg-white text-slate-900 text-xs font-semibold shadow-xs transition-all";
+                tabTurnstile.className = "px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 text-xs font-medium transition-all";
+                cameraHeading.textContent = "CAM-01: Main Facility Entrance";
+
+                if (laptopProcessInterval) {
+                    clearInterval(laptopProcessInterval);
+                    laptopProcessInterval = null;
+                }
+                if (laptopStream) {
+                    laptopStream.getTracks().forEach(track => track.stop());
+                    laptopStream = null;
+                }
+
+                displayImg.src = "/video_feed?t=" + new Date().getTime();
+                checkCameraStatus();
+            }
+
+            if (tabEntrance && tabTurnstile) {
+                tabEntrance.addEventListener('click', switchToSeverCamera);
+                tabTurnstile.addEventListener('click', startLaptopCamera);
+            }
+            if (btnEnableLaptopNow) {
+                btnEnableLaptopNow.addEventListener('click', startLaptopCamera);
+            }
+
+            // Snapshot Button
+            const btnManualSnap = document.getElementById('btn-manual-snap');
+            if (btnManualSnap) {
+                btnManualSnap.addEventListener('click', () => {
+                    const original = btnManualSnap.innerHTML;
+                    btnManualSnap.innerHTML = `<span class="material-symbols-outlined text-sm text-emerald-600">check</span> Saved!`;
+                    setTimeout(() => {
+                        btnManualSnap.innerHTML = original;
+                    }, 1500);
+                });
+            }
+
+            // Fullscreen & Zoom
+            const btnFullscreen = document.getElementById('btn-fullscreen');
+            if (btnFullscreen) {
+                btnFullscreen.addEventListener('click', () => {
+                    const vp = document.getElementById('viewport-box');
+                    if (!document.fullscreenElement) {
+                        vp.requestFullscreen().catch(err => alert("Fullscreen error: " + err.message));
+                    } else {
+                        document.exitFullscreen();
+                    }
+                });
+            }
+
+            // Live Telemetry Polling (Every 1 second)
+            let lastAlert = false;
+            async function pollTelemetry() {
+                try {
+                    const res = await fetch('/api/telemetry');
+                    if (!res.ok) return;
+                    const data = await res.json();
+
+                    if (data.live && currentCameraMode === "server") {
+                        if (inferenceText) {
+                            inferenceText.textContent = `Optimal (${data.live.fps} FPS • CNN Active)`;
+                        }
+                        if (data.live.alert_triggered && !lastAlert) {
+                            triggerAudioBuzzer();
+                        }
+                        lastAlert = data.live.alert_triggered;
+                    }
+
+                    if (data.gate && currentCameraMode === "server") {
+                        if (data.gate.gate_open && !isGateUnlocked) {
+                            unlockGate();
+                        } else if (!data.gate.gate_open && isGateUnlocked && countdown === 0) {
+                            lockGate();
+                        }
+                    }
+
+                    if (data.stats) {
+                        const sVal = document.getElementById('metric-scanned-val');
+                        const cVal = document.getElementById('metric-compliant-val');
+                        const vVal = document.getElementById('metric-violations-val');
+                        const rVal = document.getElementById('metric-rate-val');
+                        const rBadge = document.getElementById('metric-rate-badge');
+                        const cRatio = document.getElementById('metric-compliant-ratio');
+
+                        if (sVal) sVal.textContent = data.stats.total_scans;
+                        if (cVal) cVal.textContent = data.stats.total_mask;
+                        if (vVal) vVal.textContent = data.stats.total_no_mask < 10 ? '0' + data.stats.total_no_mask : data.stats.total_no_mask;
+                        if (rVal) rVal.textContent = data.stats.compliance_rate + '%';
+                        if (rBadge) rBadge.textContent = Math.round(data.stats.compliance_rate) + '%';
+                        if (cRatio) cRatio.textContent = data.stats.compliance_rate + '% total';
+                    }
+                } catch (e) {
+                    console.warn("Telemetry polling failed:", e);
+                }
+            }
+
+            // Sensitivity Settings Modal Logic
+            const settingsModal = document.getElementById('settings-modal');
+            const btnOpenSettings = document.getElementById('btn-open-settings');
+            const btnSaveSettings = document.getElementById('btn-save-settings');
+            const inputConf = document.getElementById('input-conf-slider');
+            const labelConf = document.getElementById('label-conf-slider');
+            const inputPersist = document.getElementById('input-persist-slider');
+            const labelPersist = document.getElementById('label-persist-slider');
+            const settingsAlert = document.getElementById('settings-save-alert');
+
+            window.closeSettingsModal = function() {
+                if (settingsModal) settingsModal.style.display = 'none';
+                if (settingsAlert) settingsAlert.style.display = 'none';
+            };
+
+            if (btnOpenSettings) {
+                btnOpenSettings.addEventListener('click', async () => {
+                    try {
+                        const res = await fetch('/api/settings');
+                        const data = await res.json();
+                        if (data.success) {
+                            inputConf.value = data.confidence_threshold;
+                            labelConf.textContent = data.confidence_threshold + '%';
+                            inputPersist.value = data.persistence_limit;
+                            labelPersist.textContent = data.persistence_limit + ' Frames';
+                        }
+                    } catch (e) {
+                        console.warn("Could not fetch settings:", e);
+                    }
+                    if (settingsModal) settingsModal.style.display = 'flex';
+                });
+            }
+
+            if (inputConf) {
+                inputConf.addEventListener('input', () => {
+                    labelConf.textContent = inputConf.value + '%';
+                });
+            }
+
+            if (inputPersist) {
+                inputPersist.addEventListener('input', () => {
+                    labelPersist.textContent = inputPersist.value + ' Frames';
+                });
+            }
+
+            if (btnSaveSettings) {
+                btnSaveSettings.addEventListener('click', async () => {
+                    const thresholdVal = parseInt(inputConf.value);
+                    const persistVal = parseInt(inputPersist.value);
+                    try {
+                        const res = await fetch('/api/settings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                confidence_threshold: thresholdVal,
+                                persistence_limit: persistVal
+                            })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            settingsAlert.style.display = 'flex';
+                            setTimeout(() => {
+                                closeSettingsModal();
+                            }, 1200);
+                        }
+                    } catch (e) {
+                        console.error("Save settings error:", e);
+                    }
+                });
+            }
+
+            checkCameraStatus();
+            setInterval(pollTelemetry, 1000);
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+# Python & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE & Editor Configs
+.vscode/
+.vs/
+.idea/
+*.swp
+*.swo
+.codegraph/
+.omo/
+
+# Datasets & Heavy Archive Bundles
+Face Dataset/
+*.zip
+*.tar.gz
+*.rar
+
+# Runtime Incident Snapshots (Keep folder structure, exclude dynamic captures)
+static/uploads/*
+!static/uploads/.gitkeep
+static/violations/*
+!static/violations/.gitkeep
+
+# System & OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
